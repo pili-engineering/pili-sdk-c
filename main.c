@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "pili/url_factory.h"
+#include "pili/auth.h"
 #include <time.h>
+#include <stream.h>
+#include <string.h>
 
 int main(int argc, char **argv) {
     int exit;
@@ -19,6 +22,8 @@ int main(int argc, char **argv) {
     const char *stream_key = "zhebao-tui";
 
 
+
+    ///url factory example code
     const char *rtmp_publish_url_noauth = pili_rtmp_publish_url_with_noauth(rtmp_publish_domain, hub_name, stream_key);
     printf("rtmp publish(noauth):\t%s\n", rtmp_publish_url_noauth);
 
@@ -45,5 +50,16 @@ int main(int argc, char **argv) {
     free((void *) hls_play_url);
     free((void *) snapshot_url);
 
-    scanf("%c\n", &exit);
+    ///create stream
+    long ts = (long) time(NULL);
+    int ts_len = snprintf(NULL, 0, "%ld", ts);
+    ts_len += 5;
+    char *new_stream_key = (char *) malloc(sizeof(char) * ts_len);
+    memset(new_stream_key, 0, ts_len);
+    sprintf(new_stream_key, "csdk%ld", ts);
+
+    printf("create new stream: %s\n", new_stream_key);
+    char error[1024];
+    int ret = pili_create_stream(access_key, secret_key, hub_name, new_stream_key, error);
+    printf("%d\t%s\n", ret, error);
 }

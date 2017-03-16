@@ -32,3 +32,61 @@ const char *pili_hmac_sha1(const char *access_key, const char *secret_key, const
     free((void *) dst_encoded_str);
     return final_token;
 }
+
+const char *pili_sign_request(const char *access_key, const char *secret_key, const char *host, const char *method,
+                              const char *path, const char *content_type, const char *body, const char *query) {
+    char data_to_sign[1024];
+    memset(data_to_sign, NULL, 1024);
+    char *data_offset = data_to_sign;
+
+    //method
+    strcpy(data_offset, method);
+    data_offset += strlen(method);
+
+    //space
+    *data_offset = ' ';
+    data_offset += 1;
+
+    //path
+    strcpy(data_offset, path);
+    data_offset += strlen(path);
+
+    //query
+    if (query) {
+        *data_offset = '?';
+        data_offset += 1;
+        strcpy(data_offset, query);
+        data_offset += strlen(query);
+    }
+
+
+    //host
+    strcpy(data_offset, "\nHost: ");
+    data_offset += 7;
+    strcpy(data_offset, host);
+    data_offset += strlen(host);
+
+    //content type
+    if (content_type) {
+        strcpy(data_offset, "\nContent-Type: ");
+        data_offset += 15;
+        strcpy(data_offset, content_type);
+        data_offset += strlen(content_type);
+    }
+
+    strcpy(data_offset, "\n\n");
+    data_offset += 2;
+
+    if (body) {
+        strcpy(data_offset, body);
+    }
+
+    const char *sign = pili_hmac_sha1(access_key, secret_key, data_to_sign);
+    size_t dst_token_len = strlen(sign) + 7;
+    char *final_token = (char *) malloc(dst_token_len);
+    memset(final_token, 0, dst_token_len);
+
+    sprintf(final_token, "Qiniu %s", sign);
+    free((void *) sign);
+    return final_token;
+}
