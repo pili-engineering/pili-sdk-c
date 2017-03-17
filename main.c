@@ -3,6 +3,7 @@
 #include "pili/url_factory.h"
 #include <time.h>
 #include <stream.h>
+#include <string.h>
 
 int main(int argc, char **argv) {
 
@@ -50,7 +51,7 @@ int main(int argc, char **argv) {
     char error[1024];
     int ret;
 
-    /*
+
     ///create stream
     long ts = (long) time(NULL);
     int ts_len = snprintf(NULL, 0, "%ld", ts);
@@ -68,26 +69,28 @@ int main(int argc, char **argv) {
     //get stream attribute
     struct pili_stream_attribute attribute;
     ret = pili_stream_attribute(access_key, secret_key, hub_name, stream_key, &attribute, error);
-    printf("stream attribute ret: %d\terror: %s\n", ret, error);
-    printf("stream createdAt: %ld\n", attribute.created_at);
-    printf("stream updatedAt: %ld\n", attribute.updated_at);
-    printf("stream expireAt: %ld\n", attribute.expire_at);
-    printf("stream disabledTill: %ld\n", attribute.disabled_till);
+    if (ret == 0) {
+        printf("stream attribute ret: %d\terror: %s\n", ret, error);
+        printf("stream createdAt: %ld\n", attribute.created_at);
+        printf("stream updatedAt: %ld\n", attribute.updated_at);
+        printf("stream expireAt: %ld\n", attribute.expire_at);
+        printf("stream disabledTill: %ld\n", attribute.disabled_till);
+    }
 
 
     //get stream status
-    stream_key="csdk1489721888";
+    stream_key = "csdk1489721888";
     struct pili_stream_status status;
     ret = pili_stream_status(access_key, secret_key, hub_name, stream_key, &status, error);
-    printf("stream status ret: %d\terror: %s\n", ret, error);
-    printf("stream startAt: %ld\n", status.start_at);
-    printf("stream clientIP: %s\n", status.client_ip);
-    printf("stream bps:%ld\n", status.bps);
-    printf("stream audioFPS: %ld\n", status.audio_fps);
-    printf("stream videoFPS: %ld\n", status.video_fps);
-    printf("stream dataFPS: %ld\n", status.data_fps);
-
-
+    if (ret == 0) {
+        printf("stream status ret: %d\terror: %s\n", ret, error);
+        printf("stream startAt: %ld\n", status.start_at);
+        printf("stream clientIP: %s\n", status.client_ip);
+        printf("stream bps:%ld\n", status.bps);
+        printf("stream audioFPS: %ld\n", status.audio_fps);
+        printf("stream videoFPS: %ld\n", status.video_fps);
+        printf("stream dataFPS: %ld\n", status.data_fps);
+    }
 
     //stream_key = "csdk1489721888";
 
@@ -105,12 +108,9 @@ int main(int argc, char **argv) {
     printf("stream enabled ret: %d\terror: %s\n", ret, error);
 
 
-
-    char *saveas_file_name=pili_stream_saveas_whole(access_key,secret_key,hub_name,stream_key,0,error);
-    printf("stream saveas ret: %s\terror: %s\n",saveas_file_name,error);
-    free((void*)saveas_file_name);
-
-*/
+    char *saveas_file_name = pili_stream_saveas_whole(access_key, secret_key, hub_name, stream_key, 0, error);
+    printf("stream saveas ret: %s\terror: %s\n", saveas_file_name, error);
+    free((void *) saveas_file_name);
 
     //get stream history
     struct pili_stream_history_item *head = (struct pili_stream_history_item *) malloc(
