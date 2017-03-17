@@ -1,13 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "pili/url_factory.h"
-#include "pili/auth.h"
 #include <time.h>
 #include <stream.h>
-#include <string.h>
 
 int main(int argc, char **argv) {
-    int exit;
 
     const char *access_key = "";
     const char *secret_key = "";
@@ -79,6 +76,7 @@ int main(int argc, char **argv) {
 
 
     //get stream status
+    stream_key="csdk1489721888";
     struct pili_stream_status status;
     ret = pili_stream_status(access_key, secret_key, hub_name, stream_key, &status, error);
     printf("stream status ret: %d\terror: %s\n", ret, error);
@@ -106,10 +104,56 @@ int main(int argc, char **argv) {
     ret = pili_stream_enable(access_key, secret_key, hub_name, stream_key, error);
     printf("stream enabled ret: %d\terror: %s\n", ret, error);
 
-      */
+
 
     char *saveas_file_name=pili_stream_saveas_whole(access_key,secret_key,hub_name,stream_key,0,error);
     printf("stream saveas ret: %s\terror: %s\n",saveas_file_name,error);
     free((void*)saveas_file_name);
+
+*/
+
+    //get stream history
+    struct pili_stream_history_item *head = (struct pili_stream_history_item *) malloc(
+            sizeof(struct pili_stream_history_item));
+    ret = pili_stream_history(access_key, secret_key, hub_name, stream_key, 0, 0, head, error);
+    printf("stream history ret: %d\terror: %s\n", ret, error);
+    if (ret == 0) {
+        struct pili_stream_history_item *iter = head;
+        while (iter) {
+            printf("start: %ld\tend: %ld\n", head->start, head->end);
+            iter = iter->next;
+        }
+        iter = head;
+        while (iter) {
+            struct pili_stream_history_item *fp = iter;
+            free((void *) fp);
+            iter = iter->next;
+        }
+    }
+
+    //list stream
+    struct pili_stream_list_ret list_ret;
+    char *prefix = "";
+    char *marker = "";
+    int limit = 10;
+    int live_only = 0;
+    ret = pili_stream_list(access_key, secret_key, hub_name, prefix, live_only, limit, marker, &list_ret, error);
+    printf("stream list ret: %d\terror: %s\n", ret, error);
+    if (ret == 0) {
+        //if marker not empty, there are still streams to be iterated
+        printf("stream list next marker: %s\n", list_ret.marker);
+        struct pili_stream_list_item *iter = list_ret.head;
+        while (iter) {
+            printf("key: %s\n", iter->key);
+            iter = iter->next;
+        }
+        iter = list_ret.head;
+        while (iter) {
+            struct pili_stream_list_item *fp = iter;
+            free((void *) fp);
+            iter = iter->next;
+        }
+        free((void *) list_ret.marker);
+    }
 
 }
