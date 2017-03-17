@@ -21,8 +21,6 @@ int main(int argc, char **argv) {
     const char *hub_name = "NIU7PS";
     const char *stream_key = "zhebao-tui";
 
-
-
     ///url factory example code
     const char *rtmp_publish_url_noauth = pili_rtmp_publish_url_with_noauth(rtmp_publish_domain, hub_name, stream_key);
     printf("rtmp publish(noauth):\t%s\n", rtmp_publish_url_noauth);
@@ -51,6 +49,8 @@ int main(int argc, char **argv) {
     free((void *) snapshot_url);
 
     ///create stream
+
+    /*
     long ts = (long) time(NULL);
     int ts_len = snprintf(NULL, 0, "%ld", ts);
     ts_len += 5;
@@ -62,4 +62,16 @@ int main(int argc, char **argv) {
     char error[1024];
     int ret = pili_create_stream(access_key, secret_key, hub_name, new_stream_key, error);
     printf("%d\t%s\n", ret, error);
+    free((void *) new_stream_key);
+    */
+
+    char error[1024];
+    struct pili_stream_attribute attribute;
+    int ret = pili_stream_attribute(access_key, secret_key, hub_name, stream_key, &attribute, error);
+    printf("%d\t%s\n", ret, error);
+    printf("stream createdAt: %ld\n", attribute.created_at);
+    printf("stream updatedAt: %ld\n", attribute.updated_at);
+    printf("stream expireAt: %ld\n", attribute.expire_at);
+    printf("stream disabledTill: %ld\n", attribute.disabled_till);
+
 }

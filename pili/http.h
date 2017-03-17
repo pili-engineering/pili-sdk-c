@@ -19,9 +19,9 @@ struct pili_memory_buffer {
 };
 
 int pili_post_request(const char *url, const struct curl_slist *headers, const char *body,
-                      int *resp_code, struct pili_memory_buffer *resp_body, size_t resp_body_len, char *error);
+                      int *resp_code, struct pili_memory_buffer *resp_body, char *error);
 
 int pili_get_request(const char *url, const struct curl_slist *headers,
-                     int *resp_code, struct pili_memory_buffer *resp_body, size_t resp_body_len, char *error);
+                     int *resp_code, struct pili_memory_buffer *resp_body, char *error);
 
 #endif //PILI_SDK_C_HTTP_H
