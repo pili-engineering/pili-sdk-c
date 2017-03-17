@@ -13,9 +13,9 @@
 #include "http.h"
 
 
-const int pili_create_stream(const char *access_key, const char *secret_key, const char *hub_name,
-                             const char *stream_key,
-                             char *error) {
+int pili_create_stream(const char *access_key, const char *secret_key, const char *hub_name,
+                       const char *stream_key,
+                       char *error) {
     int ret = 0;
     size_t path_len = strlen(hub_name) + strlen(stream_key);
     path_len += 18;
@@ -75,9 +75,9 @@ const int pili_create_stream(const char *access_key, const char *secret_key, con
     return ret;
 }
 
-const int pili_stream_attribute(const char *access_key, const char *secret_key, const char *hub_name,
-                                const char *stream_key,
-                                struct pili_stream_attribute *attribute, char *error) {
+int pili_stream_attribute(const char *access_key, const char *secret_key, const char *hub_name,
+                          const char *stream_key,
+                          struct pili_stream_attribute *attribute, char *error) {
     int ret = 0;
     size_t encoded_stream_key_len = urlsafe_b64_encode(stream_key, strlen(stream_key), NULL, 0);
     char *encoded_stream_key = (char *) malloc(sizeof(char) * (encoded_stream_key_len + 1));
@@ -158,9 +158,9 @@ const int pili_stream_attribute(const char *access_key, const char *secret_key, 
     return ret;
 }
 
-const int pili_stream_status(const char *access_key, const char *secret_key, const char *hub_name,
-                             const char *stream_key,
-                             struct pili_stream_status *status, char *error) {
+int pili_stream_status(const char *access_key, const char *secret_key, const char *hub_name,
+                       const char *stream_key,
+                       struct pili_stream_status *status, char *error) {
     int ret = 0;
     size_t encoded_stream_key_len = urlsafe_b64_encode(stream_key, strlen(stream_key), NULL, 0);
     char *encoded_stream_key = (char *) malloc(sizeof(char) * (encoded_stream_key_len + 1));
@@ -254,13 +254,13 @@ const int pili_stream_status(const char *access_key, const char *secret_key, con
     return ret;
 }
 
-const int pili_stream_enable(const char *access_key, const char *secret_key, const char *hub_name,
-                             const char *stream_key, char *error) {
+int pili_stream_enable(const char *access_key, const char *secret_key, const char *hub_name,
+                       const char *stream_key, char *error) {
     return pili_stream_disable_till(access_key, secret_key, hub_name, stream_key, 0, error);
 }
 
-const int pili_stream_disable_till(const char *access_key, const char *secret_key, const char *hub_name,
-                                   const char *stream_key, const long disable_till_time, char *error) {
+int pili_stream_disable_till(const char *access_key, const char *secret_key, const char *hub_name,
+                             const char *stream_key, const long disable_till_time, char *error) {
     int ret = 0;
 
     size_t encoded_stream_key_len = urlsafe_b64_encode(stream_key, strlen(stream_key), NULL, 0);
@@ -327,13 +327,13 @@ const int pili_stream_disable_till(const char *access_key, const char *secret_ke
 }
 
 const char *pili_stream_saveas_whole(const char *access_key, const char *secret_key, const char *hub_name,
-                                     const char *stream_key, const char *dst_file_name, char *error) {
+                               const char *stream_key, const char *dst_file_name, char *error) {
     return pili_stream_saveas_period(access_key, secret_key, hub_name, stream_key, dst_file_name, 0, 0, error);
 }
 
 const char *pili_stream_saveas_period(const char *access_key, const char *secret_key, const char *hub_name,
-                                      const char *stream_key, const char *dst_file_name,
-                                      const long start_time, const long end_time, char *error) {
+                                const char *stream_key, const char *dst_file_name,
+                                const long start_time, const long end_time, char *error) {
     char *saveas_file_name = 0;
 
     size_t encoded_stream_key_len = urlsafe_b64_encode(stream_key, strlen(stream_key), NULL, 0);
@@ -409,9 +409,9 @@ const char *pili_stream_saveas_period(const char *access_key, const char *secret
     return saveas_file_name;
 }
 
-const int pili_stream_history(const char *access_key, const char *secret_key, const char *hub_name,
-                              const char *stream_key, const long start_time, const long end_time,
-                              struct pili_stream_history_item *head, char *error) {
+int pili_stream_history(const char *access_key, const char *secret_key, const char *hub_name,
+                        const char *stream_key, const long start_time, const long end_time,
+                        struct pili_stream_history_item *head, char *error) {
     int ret = 0;
     size_t encoded_stream_key_len = urlsafe_b64_encode(stream_key, strlen(stream_key), NULL, 0);
     char *encoded_stream_key = (char *) malloc(sizeof(char) * (encoded_stream_key_len + 1));
@@ -516,9 +516,9 @@ const int pili_stream_history(const char *access_key, const char *secret_key, co
     return ret;
 }
 
-const int pili_stream_list(const char *access_key, const char *secret_key, const char *hub_name, const char *prefix,
-                           const int live_only, const int limit, const char *marker,
-                           struct pili_stream_list_ret *list_ret, char *error) {
+int pili_stream_list(const char *access_key, const char *secret_key, const char *hub_name, const char *prefix,
+                     const int live_only, const int limit, const char *marker,
+                     struct pili_stream_list_ret *list_ret, char *error) {
     int ret = 0;
 
     size_t prefix_len = 0, marker_len = 0;

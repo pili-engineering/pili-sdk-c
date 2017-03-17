@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
     printf("stream enabled ret: %d\terror: %s\n", ret, error);
 
 
-    char *saveas_file_name = pili_stream_saveas_whole(access_key, secret_key, hub_name, stream_key, 0, error);
+    const char *saveas_file_name = pili_stream_saveas_whole(access_key, secret_key, hub_name, stream_key, 0, error);
     printf("stream saveas ret: %s\terror: %s\n", saveas_file_name, error);
     free((void *) saveas_file_name);
 
