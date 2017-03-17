@@ -25,7 +25,7 @@ int pili_create_stream(const char *access_key, const char *secret_key, const cha
     //make body
     cJSON *root = cJSON_CreateObject();
     cJSON_AddItemToObject(root, "key", cJSON_CreateString(stream_key));
-    const char *body = cJSON_Print(root);
+    const char *body = cJSON_PrintUnformatted(root);
 
     const char *token = pili_sign_request(access_key, secret_key, PILI_API_HOST, "POST", path, PILI_MIME_JSON, body, 0);
     struct curl_slist *headers;
@@ -55,7 +55,7 @@ int pili_create_stream(const char *access_key, const char *secret_key, const cha
                 if (error) {
                     cJSON *err_obj = cJSON_GetObjectItem(resp_root, "error");
                     if (err_obj) {
-                        sprintf(error, "%d %s", resp_code, cJSON_Print(err_obj));
+                        sprintf(error, "%d %s", resp_code, cJSON_PrintUnformatted(err_obj));
                     }
                 }
                 cJSON_Delete(resp_root);
@@ -116,32 +116,32 @@ int pili_stream_attribute(const char *access_key, const char *secret_key, const 
                 if (error) {
                     cJSON *err_obj = cJSON_GetObjectItem(resp_root, "error");
                     if (err_obj) {
-                        sprintf(error, "%d %s", resp_code, cJSON_Print(err_obj));
+                        sprintf(error, "%d %s", resp_code, cJSON_PrintUnformatted(err_obj));
                     }
                 }
             } else {
                 if (attribute) {
                     cJSON *created_at_obj = cJSON_GetObjectItem(resp_root, "createdAt");
                     if (created_at_obj) {
-                        char *created_at = cJSON_Print(created_at_obj);
+                        char *created_at = cJSON_PrintUnformatted(created_at_obj);
                         attribute->created_at = strtol(created_at, NULL, 10);
                         free((void *) created_at);
                     }
                     cJSON *updated_at_obj = cJSON_GetObjectItem(resp_root, "updatedAt");
                     if (updated_at_obj) {
-                        char *updated_at = cJSON_Print(updated_at_obj);
+                        char *updated_at = cJSON_PrintUnformatted(updated_at_obj);
                         attribute->updated_at = strtol(updated_at, NULL, 0);
                         free((void *) updated_at);
                     }
                     cJSON *expire_at_obj = cJSON_GetObjectItem(resp_root, "expireAt");
                     if (expire_at_obj) {
-                        char *expire_at = cJSON_Print(expire_at_obj);
+                        char *expire_at = cJSON_PrintUnformatted(expire_at_obj);
                         attribute->expire_at = strtol(expire_at, NULL, 0);
                         free((void *) expire_at);
                     }
                     cJSON *disabled_till_obj = cJSON_GetObjectItem(resp_root, "disabledTill");
                     if (disabled_till_obj) {
-                        char *disabled_till = cJSON_Print(disabled_till_obj);
+                        char *disabled_till = cJSON_PrintUnformatted(disabled_till_obj);
                         attribute->disabled_till = strtol(disabled_till, NULL, 0);
                         free((void *) disabled_till);
                     }
@@ -202,21 +202,21 @@ int pili_stream_status(const char *access_key, const char *secret_key, const cha
                 if (error) {
                     cJSON *err_obj = cJSON_GetObjectItem(resp_root, "error");
                     if (err_obj) {
-                        sprintf(error, "%d %s", resp_code, cJSON_Print(err_obj));
+                        sprintf(error, "%d %s", resp_code, cJSON_PrintUnformatted(err_obj));
                     }
                 }
             } else {
                 if (status) {
                     cJSON *start_at_obj = cJSON_GetObjectItem(resp_root, "startAt");
                     if (start_at_obj) {
-                        char *start_at = cJSON_Print(start_at_obj);
+                        char *start_at = cJSON_PrintUnformatted(start_at_obj);
                         status->start_at = strtol(start_at, NULL, 10);
                         free((void *) start_at);
                     }
 
                     cJSON *client_ip_obj = cJSON_GetObjectItem(resp_root, "clientIP");
                     if (client_ip_obj) {
-                        char *client_ip = cJSON_Print(client_ip_obj);
+                        char *client_ip = cJSON_PrintUnformatted(client_ip_obj);
                         memset(status->client_ip, 0, sizeof(status->client_ip));
                         strcpy(status->client_ip, client_ip);
                         free((void *) client_ip);
@@ -224,28 +224,28 @@ int pili_stream_status(const char *access_key, const char *secret_key, const cha
 
                     cJSON *bps_obj = cJSON_GetObjectItem(resp_root, "bps");
                     if (bps_obj) {
-                        char *bps = cJSON_Print(bps_obj);
+                        char *bps = cJSON_PrintUnformatted(bps_obj);
                         status->bps = strtol(bps, NULL, 10);
                         free((void *) bps);
                     }
-                    printf("%ld\n", status->bps);
+
                     cJSON *fps_root_obj = cJSON_GetObjectItem(resp_root, "fps");
                     if (fps_root_obj) {
                         //audio fps
                         cJSON *audio_fps_obj = cJSON_GetObjectItem(fps_root_obj, "audio");
-                        char *audio_fps = cJSON_Print(audio_fps_obj);
+                        char *audio_fps = cJSON_PrintUnformatted(audio_fps_obj);
                         status->audio_fps = strtol(audio_fps, NULL, 10);
                         free((void *) audio_fps);
 
                         //video fps
                         cJSON *video_fps_obj = cJSON_GetObjectItem(fps_root_obj, "video");
-                        char *video_fps = cJSON_Print(video_fps_obj);
+                        char *video_fps = cJSON_PrintUnformatted(video_fps_obj);
                         status->video_fps = strtol(video_fps, NULL, 10);
                         free((void *) video_fps);
 
                         //data fps
                         cJSON *data_fps_obj = cJSON_GetObjectItem(fps_root_obj, "data");
-                        char *data_fps = cJSON_Print(data_fps_obj);
+                        char *data_fps = cJSON_PrintUnformatted(data_fps_obj);
                         status->data_fps = strtol(data_fps, NULL, 10);
                         free((void *) data_fps);
                     }

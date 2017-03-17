@@ -48,9 +48,13 @@ int main(int argc, char **argv) {
     free((void *) hls_play_url);
     free((void *) snapshot_url);
 
-    ///create stream
+
+    //shared
+    char error[1024];
+    int ret;
 
     /*
+    ///create stream
     long ts = (long) time(NULL);
     int ts_len = snprintf(NULL, 0, "%ld", ts);
     ts_len += 5;
@@ -59,19 +63,30 @@ int main(int argc, char **argv) {
     sprintf(new_stream_key, "csdk%ld", ts);
 
     printf("create new stream: %s\n", new_stream_key);
-    char error[1024];
-    int ret = pili_create_stream(access_key, secret_key, hub_name, new_stream_key, error);
-    printf("%d\t%s\n", ret, error);
+    ret = pili_create_stream(access_key, secret_key, hub_name, new_stream_key, error);
+    printf("ret: %d\terror: %s\n", ret, error);
     free((void *) new_stream_key);
-    */
 
-    char error[1024];
+
+    //get stream attribute
     struct pili_stream_attribute attribute;
-    int ret = pili_stream_attribute(access_key, secret_key, hub_name, stream_key, &attribute, error);
-    printf("%d\t%s\n", ret, error);
+    ret = pili_stream_attribute(access_key, secret_key, hub_name, stream_key, &attribute, error);
+    printf("ret: %d\terror: %s\n", ret, error);
     printf("stream createdAt: %ld\n", attribute.created_at);
     printf("stream updatedAt: %ld\n", attribute.updated_at);
     printf("stream expireAt: %ld\n", attribute.expire_at);
     printf("stream disabledTill: %ld\n", attribute.disabled_till);
+
+     */
+
+    struct pili_stream_status status;
+    ret = pili_stream_status(access_key, secret_key, hub_name, stream_key, &status, error);
+    printf("ret: %d\terror: %s\n", ret, error);
+    printf("stream startAt: %ld\n", status.start_at);
+    printf("stream clientIP: %s\n", status.client_ip);
+    printf("stream bps:%ld\n", status.bps);
+    printf("stream audioFPS: %ld\n", status.audio_fps);
+    printf("stream videoFPS: %ld\n", status.video_fps);
+    printf("stream dataFPS: %ld\n", status.data_fps);
 
 }
