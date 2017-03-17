@@ -13,8 +13,9 @@
 #include "http.h"
 
 
-int pili_create_stream(const char *access_key, const char *secret_key, const char *hub_name, const char *stream_key,
-                       char *error) {
+const int pili_create_stream(const char *access_key, const char *secret_key, const char *hub_name,
+                             const char *stream_key,
+                             char *error) {
     int ret = 0;
     size_t path_len = strlen(hub_name) + strlen(stream_key);
     path_len += 18;
@@ -23,9 +24,9 @@ int pili_create_stream(const char *access_key, const char *secret_key, const cha
     sprintf(path, "/v2/hubs/%s/streams", hub_name);
 
     //make body
-    cJSON *root = cJSON_CreateObject();
-    cJSON_AddItemToObject(root, "key", cJSON_CreateString(stream_key));
-    const char *body = cJSON_PrintUnformatted(root);
+    cJSON *req_root = cJSON_CreateObject();
+    cJSON_AddItemToObject(req_root, "key", cJSON_CreateString(stream_key));
+    const char *body = cJSON_PrintUnformatted(req_root);
 
     const char *token = pili_sign_request(access_key, secret_key, PILI_API_HOST, "POST", path, PILI_MIME_JSON, body, 0);
     struct curl_slist *headers;
@@ -55,7 +56,7 @@ int pili_create_stream(const char *access_key, const char *secret_key, const cha
                 if (error) {
                     cJSON *err_obj = cJSON_GetObjectItem(resp_root, "error");
                     if (err_obj) {
-                        sprintf(error, "%d %s", resp_code, cJSON_PrintUnformatted(err_obj));
+                        sprintf(error, "%d %s", resp_code, err_obj->valuestring);
                     }
                 }
                 cJSON_Delete(resp_root);
@@ -64,17 +65,18 @@ int pili_create_stream(const char *access_key, const char *secret_key, const cha
     }
 
     //clean
+    free((void *) req_root);
     curl_slist_free_all(headers);
     free((void *) token);
     free((void *) body);
     free((void *) path);
-    free((void *) root);
     free((void *) resp_body.memory);
     return ret;
 }
 
-int pili_stream_attribute(const char *access_key, const char *secret_key, const char *hub_name, const char *stream_key,
-                          struct pili_stream_attribute *attribute, char *error) {
+const int pili_stream_attribute(const char *access_key, const char *secret_key, const char *hub_name,
+                                const char *stream_key,
+                                struct pili_stream_attribute *attribute, char *error) {
     int ret = 0;
     size_t encoded_stream_key_len = urlsafe_b64_encode(stream_key, strlen(stream_key), NULL, 0);
     char *encoded_stream_key = (char *) malloc(sizeof(char) * (encoded_stream_key_len + 1));
@@ -116,34 +118,26 @@ int pili_stream_attribute(const char *access_key, const char *secret_key, const 
                 if (error) {
                     cJSON *err_obj = cJSON_GetObjectItem(resp_root, "error");
                     if (err_obj) {
-                        sprintf(error, "%d %s", resp_code, cJSON_PrintUnformatted(err_obj));
+                        sprintf(error, "%d %s", resp_code, err_obj->valuestring);
                     }
                 }
             } else {
                 if (attribute) {
                     cJSON *created_at_obj = cJSON_GetObjectItem(resp_root, "createdAt");
                     if (created_at_obj) {
-                        char *created_at = cJSON_PrintUnformatted(created_at_obj);
-                        attribute->created_at = strtol(created_at, NULL, 10);
-                        free((void *) created_at);
+                        attribute->created_at = strtol(created_at_obj->valuestring, NULL, 10);
                     }
                     cJSON *updated_at_obj = cJSON_GetObjectItem(resp_root, "updatedAt");
                     if (updated_at_obj) {
-                        char *updated_at = cJSON_PrintUnformatted(updated_at_obj);
-                        attribute->updated_at = strtol(updated_at, NULL, 0);
-                        free((void *) updated_at);
+                        attribute->updated_at = strtol(updated_at_obj->valuestring, NULL, 0);
                     }
                     cJSON *expire_at_obj = cJSON_GetObjectItem(resp_root, "expireAt");
                     if (expire_at_obj) {
-                        char *expire_at = cJSON_PrintUnformatted(expire_at_obj);
-                        attribute->expire_at = strtol(expire_at, NULL, 0);
-                        free((void *) expire_at);
+                        attribute->expire_at = strtol(expire_at_obj->valuestring, NULL, 0);
                     }
                     cJSON *disabled_till_obj = cJSON_GetObjectItem(resp_root, "disabledTill");
                     if (disabled_till_obj) {
-                        char *disabled_till = cJSON_PrintUnformatted(disabled_till_obj);
-                        attribute->disabled_till = strtol(disabled_till, NULL, 0);
-                        free((void *) disabled_till);
+                        attribute->disabled_till = strtol(disabled_till_obj->valuestring, NULL, 0);
                     }
                 }
             }
@@ -160,8 +154,9 @@ int pili_stream_attribute(const char *access_key, const char *secret_key, const 
     return ret;
 }
 
-int pili_stream_status(const char *access_key, const char *secret_key, const char *hub_name, const char *stream_key,
-                       struct pili_stream_status *status, char *error) {
+const int pili_stream_status(const char *access_key, const char *secret_key, const char *hub_name,
+                             const char *stream_key,
+                             struct pili_stream_status *status, char *error) {
     int ret = 0;
     size_t encoded_stream_key_len = urlsafe_b64_encode(stream_key, strlen(stream_key), NULL, 0);
     char *encoded_stream_key = (char *) malloc(sizeof(char) * (encoded_stream_key_len + 1));
@@ -202,52 +197,40 @@ int pili_stream_status(const char *access_key, const char *secret_key, const cha
                 if (error) {
                     cJSON *err_obj = cJSON_GetObjectItem(resp_root, "error");
                     if (err_obj) {
-                        sprintf(error, "%d %s", resp_code, cJSON_PrintUnformatted(err_obj));
+                        sprintf(error, "%d %s", resp_code, err_obj->valuestring);
                     }
                 }
             } else {
                 if (status) {
                     cJSON *start_at_obj = cJSON_GetObjectItem(resp_root, "startAt");
                     if (start_at_obj) {
-                        char *start_at = cJSON_PrintUnformatted(start_at_obj);
-                        status->start_at = strtol(start_at, NULL, 10);
-                        free((void *) start_at);
+                        status->start_at = strtol(start_at_obj->valuestring, NULL, 10);
                     }
 
                     cJSON *client_ip_obj = cJSON_GetObjectItem(resp_root, "clientIP");
                     if (client_ip_obj) {
-                        char *client_ip = cJSON_PrintUnformatted(client_ip_obj);
                         memset(status->client_ip, 0, sizeof(status->client_ip));
-                        strcpy(status->client_ip, client_ip);
-                        free((void *) client_ip);
+                        strcpy(status->client_ip, client_ip_obj->valuestring);
                     }
 
                     cJSON *bps_obj = cJSON_GetObjectItem(resp_root, "bps");
                     if (bps_obj) {
-                        char *bps = cJSON_PrintUnformatted(bps_obj);
-                        status->bps = strtol(bps, NULL, 10);
-                        free((void *) bps);
+                        status->bps = strtol(bps_obj->valuestring, NULL, 10);
                     }
 
                     cJSON *fps_root_obj = cJSON_GetObjectItem(resp_root, "fps");
                     if (fps_root_obj) {
                         //audio fps
                         cJSON *audio_fps_obj = cJSON_GetObjectItem(fps_root_obj, "audio");
-                        char *audio_fps = cJSON_PrintUnformatted(audio_fps_obj);
-                        status->audio_fps = strtol(audio_fps, NULL, 10);
-                        free((void *) audio_fps);
+                        status->audio_fps = strtol(audio_fps_obj->valuestring, NULL, 10);
 
                         //video fps
                         cJSON *video_fps_obj = cJSON_GetObjectItem(fps_root_obj, "video");
-                        char *video_fps = cJSON_PrintUnformatted(video_fps_obj);
-                        status->video_fps = strtol(video_fps, NULL, 10);
-                        free((void *) video_fps);
+                        status->video_fps = strtol(video_fps_obj->valuestring, NULL, 10);
 
                         //data fps
                         cJSON *data_fps_obj = cJSON_GetObjectItem(fps_root_obj, "data");
-                        char *data_fps = cJSON_PrintUnformatted(data_fps_obj);
-                        status->data_fps = strtol(data_fps, NULL, 10);
-                        free((void *) data_fps);
+                        status->data_fps = strtol(data_fps_obj->valuestring, NULL, 10);
                     }
                 }
             }
@@ -262,4 +245,169 @@ int pili_stream_status(const char *access_key, const char *secret_key, const cha
     free((void *) path);
     free((void *) resp_body.memory);
     return ret;
+}
+
+const int pili_stream_enable(const char *access_key, const char *secret_key, const char *hub_name,
+                             const char *stream_key, char *error) {
+    return pili_stream_disable_till(access_key, secret_key, hub_name, stream_key, 0, error);
+}
+
+const int pili_stream_disable_till(const char *access_key, const char *secret_key, const char *hub_name,
+                                   const char *stream_key, const long disable_till_time, char *error) {
+    int ret = 0;
+
+    size_t encoded_stream_key_len = urlsafe_b64_encode(stream_key, strlen(stream_key), NULL, 0);
+    char *encoded_stream_key = (char *) malloc(sizeof(char) * (encoded_stream_key_len + 1));
+    memset(encoded_stream_key, 0, encoded_stream_key_len + 1);
+    urlsafe_b64_encode(stream_key, strlen(stream_key), encoded_stream_key, encoded_stream_key_len);
+
+    size_t path_len = strlen(hub_name) + strlen(encoded_stream_key);
+    path_len += 28;
+    char *path = (char *) malloc(sizeof(char) * path_len);
+    memset(path, 0, path_len);
+    sprintf(path, "/v2/hubs/%s/streams/%s/disabled", hub_name, encoded_stream_key);
+
+    //make body
+    cJSON *req_root = cJSON_CreateObject();
+    cJSON_AddItemToObject(req_root, "disabledTill", cJSON_CreateNumber(disable_till_time));
+    const char *body = cJSON_PrintUnformatted(req_root);
+
+    const char *token = pili_sign_request(access_key, secret_key, PILI_API_HOST, "POST", path, PILI_MIME_JSON, body, 0);
+    struct curl_slist *headers;
+
+    char *auth_header = (char *) malloc(strlen(token) + 15);
+    sprintf(auth_header, "Authorization: %s", token);
+    headers = curl_slist_append(NULL, auth_header);
+    headers = curl_slist_append(headers, "Content-Type: application/json");
+
+    size_t url_len = strlen(PILI_API_ADDRESS) + strlen(path) + 1;
+    char *url = (char *) malloc(url_len);
+    memset(url, 0, url_len);
+    sprintf(url, "%s%s", PILI_API_ADDRESS, path);
+
+    int resp_code;
+    struct pili_memory_buffer resp_body;
+    resp_body.memory = malloc(1);
+    resp_body.size = 0;
+
+    int result = pili_post_request(url, headers, body, &resp_code, &resp_body, error);
+    if (result != 0) {
+        ret = -1;
+    } else {
+        if (resp_code != 200) {
+            cJSON *resp_root = cJSON_Parse(resp_body.memory);
+            if (resp_root) {
+                if (error) {
+                    cJSON *err_obj = cJSON_GetObjectItem(resp_root, "error");
+                    if (err_obj) {
+                        sprintf(error, "%d %s", resp_code, err_obj->valuestring);
+                    }
+                }
+                cJSON_Delete(resp_root);
+            }
+        }
+    }
+
+    //clean
+    cJSON_Delete((void *) req_root);
+    curl_slist_free_all(headers);
+    free((void *) token);
+    free((void *) body);
+    free((void *) path);
+    free((void *) resp_body.memory);
+    return ret;
+}
+
+const char *pili_stream_saveas_whole(const char *access_key, const char *secret_key, const char *hub_name,
+                                     const char *stream_key, const char *dst_file_name, char *error) {
+    return pili_stream_saveas_period(access_key, secret_key, hub_name, stream_key, dst_file_name, 0, 0, error);
+}
+
+const char *pili_stream_saveas_period(const char *access_key, const char *secret_key, const char *hub_name,
+                                      const char *stream_key, const char *dst_file_name,
+                                      const long start_time, const long end_time, char *error) {
+    char *saveas_file_name = 0;
+
+    size_t encoded_stream_key_len = urlsafe_b64_encode(stream_key, strlen(stream_key), NULL, 0);
+    char *encoded_stream_key = (char *) malloc(sizeof(char) * (encoded_stream_key_len + 1));
+    memset(encoded_stream_key, 0, encoded_stream_key_len + 1);
+    urlsafe_b64_encode(stream_key, strlen(stream_key), encoded_stream_key, encoded_stream_key_len);
+
+    size_t path_len = strlen(hub_name) + strlen(encoded_stream_key);
+    path_len += 26;
+    char *path = (char *) malloc(sizeof(char) * path_len);
+    memset(path, 0, path_len);
+    sprintf(path, "/v2/hubs/%s/streams/%s/saveas", hub_name, encoded_stream_key);
+
+    //make body
+    cJSON *req_root = cJSON_CreateObject();
+    if (dst_file_name) {
+        cJSON_AddItemToObject(req_root, "fname", cJSON_CreateString(dst_file_name));
+    }
+    cJSON_AddItemToObject(req_root, "start", cJSON_CreateNumber(start_time));
+    cJSON_AddItemToObject(req_root, "end", cJSON_CreateNumber(end_time));
+
+    const char *body = cJSON_PrintUnformatted(req_root);
+
+    const char *token = pili_sign_request(access_key, secret_key, PILI_API_HOST, "POST", path, PILI_MIME_JSON, body, 0);
+    struct curl_slist *headers;
+
+    char *auth_header = (char *) malloc(strlen(token) + 15);
+    sprintf(auth_header, "Authorization: %s", token);
+    headers = curl_slist_append(NULL, auth_header);
+    headers = curl_slist_append(headers, "Content-Type: application/json");
+
+    size_t url_len = strlen(PILI_API_ADDRESS) + strlen(path) + 1;
+    char *url = (char *) malloc(url_len);
+    memset(url, 0, url_len);
+    sprintf(url, "%s%s", PILI_API_ADDRESS, path);
+
+    int resp_code;
+    struct pili_memory_buffer resp_body;
+    resp_body.memory = malloc(1);
+    resp_body.size = 0;
+
+    int result = pili_post_request(url, headers, body, &resp_code, &resp_body, error);
+    if (result == 0) {
+        cJSON *resp_root = cJSON_Parse(resp_body.memory);
+        if (resp_root) {
+            if (resp_code != 200) {
+                if (error) {
+                    cJSON *err_obj = cJSON_GetObjectItem(resp_root, "error");
+                    if (err_obj) {
+                        sprintf(error, "%d %s", resp_code, err_obj->valuestring);
+                    }
+                }
+            } else {
+                cJSON *fname_obj = cJSON_GetObjectItem(resp_root, "fname");
+                if (fname_obj) {
+                    char *fname = fname_obj->valuestring;
+                    saveas_file_name = (char *) malloc(sizeof(char) * (strlen(fname) + 1));
+                    memset(saveas_file_name, 0, strlen(fname) + 1);
+                    strcpy(saveas_file_name, fname);
+                }
+            }
+            cJSON_Delete(resp_root);
+        }
+    }
+
+    //clean
+    cJSON_Delete(req_root);
+    curl_slist_free_all(headers);
+    free((void *) token);
+    free((void *) body);
+    free((void *) path);
+    free((void *) resp_body.memory);
+    return saveas_file_name;
+}
+
+const char *pili_stream_list(const char *access_key, const char *secret_key, const char *hub_name, const char *prefix,
+                             const int live_only, const int limit, const char *marker, char *error) {
+
+}
+
+const int pili_stream_history(const char *access_key, const char *secret_key, const char *hub_name,
+                              const char *stream_key, const long start_time, const long end_time,
+                              struct pili_stream_history *history, char *error) {
+
 }

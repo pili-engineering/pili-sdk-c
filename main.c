@@ -64,29 +64,52 @@ int main(int argc, char **argv) {
 
     printf("create new stream: %s\n", new_stream_key);
     ret = pili_create_stream(access_key, secret_key, hub_name, new_stream_key, error);
-    printf("ret: %d\terror: %s\n", ret, error);
+    printf("create stream ret: %d\terror: %s\n", ret, error);
     free((void *) new_stream_key);
 
 
     //get stream attribute
     struct pili_stream_attribute attribute;
     ret = pili_stream_attribute(access_key, secret_key, hub_name, stream_key, &attribute, error);
-    printf("ret: %d\terror: %s\n", ret, error);
+    printf("stream attribute ret: %d\terror: %s\n", ret, error);
     printf("stream createdAt: %ld\n", attribute.created_at);
     printf("stream updatedAt: %ld\n", attribute.updated_at);
     printf("stream expireAt: %ld\n", attribute.expire_at);
     printf("stream disabledTill: %ld\n", attribute.disabled_till);
 
-     */
 
+    //get stream status
     struct pili_stream_status status;
     ret = pili_stream_status(access_key, secret_key, hub_name, stream_key, &status, error);
-    printf("ret: %d\terror: %s\n", ret, error);
+    printf("stream status ret: %d\terror: %s\n", ret, error);
     printf("stream startAt: %ld\n", status.start_at);
     printf("stream clientIP: %s\n", status.client_ip);
     printf("stream bps:%ld\n", status.bps);
     printf("stream audioFPS: %ld\n", status.audio_fps);
     printf("stream videoFPS: %ld\n", status.video_fps);
     printf("stream dataFPS: %ld\n", status.data_fps);
+
+
+
+    //stream_key = "csdk1489721888";
+
+    //disable the stream forever
+    ret = pili_stream_disable_till(access_key, secret_key, hub_name, stream_key, -1, error);
+    printf("stream disable till ret: %d\terror: %s\n", ret, error);
+
+    //disable the stream for an hour
+    long disable_till = (long) time(NULL) + 3600;
+    ret = pili_stream_disable_till(access_key, secret_key, hub_name, stream_key, disable_till, error);
+    printf("stream disable till %ld ret: %d\terror: %s\n", disable_till, ret, error);
+
+    //enable the stream
+    ret = pili_stream_enable(access_key, secret_key, hub_name, stream_key, error);
+    printf("stream enabled ret: %d\terror: %s\n", ret, error);
+
+      */
+
+    char *saveas_file_name=pili_stream_saveas_whole(access_key,secret_key,hub_name,stream_key,0,error);
+    printf("stream saveas ret: %s\terror: %s\n",saveas_file_name,error);
+    free((void*)saveas_file_name);
 
 }

@@ -22,13 +22,58 @@ struct pili_stream_status {
     long data_fps;
 };
 
-int pili_create_stream(const char *access_key, const char *secret_key, const char *hub_name, const char *stream_key,
-                       char *error);
+struct pili_stream_history {
+    long start;
+    long end;
+    struct pili_stream_history *next;
+};
 
-int pili_stream_attribute(const char *access_key, const char *secret_key, const char *hub_name, const char *stream_key,
-                          struct pili_stream_attribute *attribute, char *error);
+struct pili_stream_list_item {
+    char *key;
+    char *next;
+};
 
-int pili_stream_status(const char *access_key, const char *secret_key, const char *hub_name, const char *stream_key,
-                       struct pili_stream_status *status, char *error);
+struct pili_stream_list_ret {
+    struct pili_stream_list_item *first;
+    char marker[100];
+};
+
+
+const int pili_create_stream(const char *access_key, const char *secret_key, const char *hub_name,
+                             const char *stream_key,
+                             char *error);
+
+const int pili_stream_attribute(const char *access_key, const char *secret_key, const char *hub_name,
+                                const char *stream_key,
+                                struct pili_stream_attribute *attribute, char *error);
+
+const int pili_stream_status(const char *access_key, const char *secret_key, const char *hub_name,
+                             const char *stream_key,
+                             struct pili_stream_status *status, char *error);
+
+const char *pili_stream_list(const char *access_key, const char *secret_key, const char *hub_name, const char *prefix,
+                             const int live_only, const int limit, const char *marker, char *error);
+
+const int pili_stream_history(const char *access_key, const char *secret_key, const char *hub_name,
+                              const char *stream_key, const long start_time, const long end_time,
+                              struct pili_stream_history *history, char *error);
+
+const int pili_stream_enable(const char *access_key, const char *secret_key, const char *hub_name,
+                             const char *stream_key,
+                             char *error);
+
+const int pili_stream_disable_till(const char *access_key, const char *secret_key, const char *hub_name,
+                                   const char *stream_key, const long disable_till_time,
+                                   char *error);
+
+const char *pili_stream_saveas_whole(const char *access_key, const char *secret_key, const char *hub_name,
+                                     const char *stream_key,
+                                     const char *dst_file_name, char *error);
+
+const char *pili_stream_saveas_period(const char *access_key, const char *secret_key, const char *hub_name,
+                                      const char *stream_key,
+                                      const char *dst_file_name, const long start_time, const long end_time,
+                                      char *error);
+
 
 #endif //PILI_SDK_C_STREAM_H
