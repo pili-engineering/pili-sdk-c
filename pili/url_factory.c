@@ -48,7 +48,7 @@ const char *pili_rtmp_play_url(const char *rtmp_play_domain, const char *hub_nam
 
 const char *pili_hdl_play_url(const char *hdl_play_domain, const char *hub_name, const char *stream_key) {
     char *dst_fmt = "http://%s/%s/%s.flv";
-    size_t dst_len = snprintf(NULL, 0, hdl_play_domain, hub_name, stream_key) + 1;
+    size_t dst_len = snprintf(NULL, 0, dst_fmt, hdl_play_domain, hub_name, stream_key) + 1;
 
     char *hdl_play_url = (char *) malloc(sizeof(char) * dst_len);
 
@@ -58,7 +58,7 @@ const char *pili_hdl_play_url(const char *hdl_play_domain, const char *hub_name,
 
 const char *pili_hls_play_url(const char *hls_play_domain, const char *hub_name, const char *stream_key) {
     char *dst_fmt = "http://%s/%s/%s.m3u8";
-    size_t dst_len = snprintf(NULL, 0, hls_play_domain, hub_name, stream_key) + 1;
+    size_t dst_len = snprintf(NULL, 0, dst_fmt, hls_play_domain, hub_name, stream_key) + 1;
 
     char *hls_play_url = (char *) malloc(sizeof(char) * dst_len);
     sprintf(hls_play_url, dst_fmt, hls_play_domain, hub_name, stream_key);
