@@ -28,6 +28,10 @@ struct pili_stream_history_item {
     struct pili_stream_history_item *next;
 };
 
+struct pili_stream_history_ret {
+    struct pili_stream_history_item *head;
+};
+
 struct pili_stream_list_item {
     char *key;
     struct pili_stream_list_item *next;
@@ -65,7 +69,7 @@ int pili_stream_list(const char *access_key, const char *secret_key, const char 
  * */
 int pili_stream_history(const char *access_key, const char *secret_key, const char *hub_name,
                         const char *stream_key, const long start_time, const long end_time,
-                        struct pili_stream_history_item *head, char *error);
+                        struct pili_stream_history_ret *history_ret, char *error);
 
 /**
  * return 0 on success, or find error in *error

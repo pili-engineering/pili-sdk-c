@@ -283,17 +283,17 @@ char error[1024];
 int ret;
 
 //get stream history
-struct pili_stream_history_item *head = (struct pili_stream_history_item *) malloc(
-        sizeof(struct pili_stream_history_item));
-ret = pili_stream_history(access_key, secret_key, hub_name, stream_key, 0, 0, head, error);
+struct pili_stream_history_ret history_ret;
+ret = pili_stream_history(access_key, secret_key, hub_name, stream_key, 0, 0, &history_ret, error);
 printf("stream history ret: %d\terror: %s\n", ret, error);
 if (ret == 0) {
-    struct pili_stream_history_item *iter = head;
+    struct pili_stream_history_item *iter = history_ret.head;
+    //skip the head
     while (iter) {
-        printf("start: %ld\tend: %ld\n", head->start, head->end);
+        printf("start: %ld\tend: %ld\n", iter->start, iter->end);
         iter = iter->next;
     }
-    iter = head;
+    iter = history_ret.head;
     while (iter) {
         struct pili_stream_history_item *fp = iter;
         free((void *) fp);

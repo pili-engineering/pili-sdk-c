@@ -7,8 +7,8 @@
 
 int main(int argc, char **argv) {
 
-    const char *access_key = "MqF35-H32j1PH8igh-am7aEkduP511g-5-F7j47Z";
-    const char *secret_key = "BF9QHMKIUQp_Oh4Xk8SwyhmwJ0CO-9n-RJzDgZQr";
+    const char *access_key = "";
+    const char *secret_key = "";
 
     const char *rtmp_publish_domain = "pili-publish.ps.qiniucdn.com";
     const char *rtmp_play_domain = "pili-live-rtmp.ps.qiniucdn.com";
@@ -19,7 +19,6 @@ int main(int argc, char **argv) {
     const char *hub_name = "NIU7PS";
     const char *stream_key = "zhebao-tui";
 
-    /*
     ///url factory example code
     const char *rtmp_publish_url_noauth = pili_rtmp_publish_url_with_noauth(rtmp_publish_domain, hub_name, stream_key);
     printf("rtmp publish(noauth):\t%s\n", rtmp_publish_url_noauth);
@@ -48,12 +47,10 @@ int main(int argc, char **argv) {
     printf("snapshot:\t%s\n", snapshot_url);
     free((void *) snapshot_url);
 
-     */
     //shared
     char error[1024];
     int ret;
 
-/*
     ///create stream
     long ts = (long) time(NULL);
     int ts_len = snprintf(NULL, 0, "csdk%ld", ts) + 1;
@@ -65,9 +62,8 @@ int main(int argc, char **argv) {
     printf("create stream ret: %d\terror: %s\n", ret, error);
     free((void *) new_stream_key);
 
-*/
     //get stream attribute
-    stream_key="csdk1489840201";
+    stream_key = "csdk1489840201";
     struct pili_stream_attribute attribute;
     ret = pili_stream_attribute(access_key, secret_key, hub_name, stream_key, &attribute, error);
     printf("stream attribute ret: %d\terror: %s\n", ret, error);
@@ -78,13 +74,11 @@ int main(int argc, char **argv) {
         printf("stream disabledTill: %ld\n", attribute.disabled_till);
     }
 
-
-/*
     //get stream status
     struct pili_stream_status status;
     ret = pili_stream_status(access_key, secret_key, hub_name, stream_key, &status, error);
+    printf("stream status ret: %d\terror: %s\n", ret, error);
     if (ret == 0) {
-        printf("stream status ret: %d\terror: %s\n", ret, error);
         printf("stream startAt: %ld\n", status.start_at);
         printf("stream clientIP: %s\n", status.client_ip);
         printf("stream bps:%ld\n", status.bps);
@@ -108,23 +102,22 @@ int main(int argc, char **argv) {
     ret = pili_stream_enable(access_key, secret_key, hub_name, stream_key, error);
     printf("stream enabled ret: %d\terror: %s\n", ret, error);
 
-
     const char *saveas_file_name = pili_stream_saveas_whole(access_key, secret_key, hub_name, stream_key, 0, error);
     printf("stream saveas ret: %s\terror: %s\n", saveas_file_name, error);
     free((void *) saveas_file_name);
 
     //get stream history
-    struct pili_stream_history_item *head = (struct pili_stream_history_item *) malloc(
-            sizeof(struct pili_stream_history_item));
-    ret = pili_stream_history(access_key, secret_key, hub_name, stream_key, 0, 0, head, error);
+    struct pili_stream_history_ret history_ret;
+    ret = pili_stream_history(access_key, secret_key, hub_name, stream_key, 0, 0, &history_ret, error);
     printf("stream history ret: %d\terror: %s\n", ret, error);
     if (ret == 0) {
-        struct pili_stream_history_item *iter = head;
+        struct pili_stream_history_item *iter = history_ret.head;
+        //skip the head
         while (iter) {
-            printf("start: %ld\tend: %ld\n", head->start, head->end);
+            printf("start: %ld\tend: %ld\n", iter->start, iter->end);
             iter = iter->next;
         }
-        iter = head;
+        iter = history_ret.head;
         while (iter) {
             struct pili_stream_history_item *fp = iter;
             free((void *) fp);
@@ -156,5 +149,4 @@ int main(int argc, char **argv) {
         }
         free((void *) list_ret.marker);
     }
-*/
 }

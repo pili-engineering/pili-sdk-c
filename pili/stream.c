@@ -108,7 +108,6 @@ int pili_stream_attribute(const char *access_key, const char *secret_key, const 
 
     size_t url_len = strlen(PILI_API_ADDRESS) + strlen(path) + 1;
     char *url = (char *) malloc(url_len);
-    memset(url, 0, url_len);
     sprintf(url, "%s%s", PILI_API_ADDRESS, path);
 
     int resp_code;
@@ -194,7 +193,6 @@ int pili_stream_status(const char *access_key, const char *secret_key, const cha
 
     size_t url_len = strlen(PILI_API_ADDRESS) + strlen(path) + 1;
     char *url = (char *) malloc(url_len);
-    memset(url, 0, url_len);
     sprintf(url, "%s%s", PILI_API_ADDRESS, path);
 
     int resp_code;
@@ -280,11 +278,10 @@ int pili_stream_disable_till(const char *access_key, const char *secret_key, con
     memset(encoded_stream_key, 0, encoded_stream_key_len + 1);
     urlsafe_b64_encode(stream_key, strlen(stream_key), encoded_stream_key, encoded_stream_key_len);
 
-    size_t path_len = strlen(hub_name) + strlen(encoded_stream_key);
-    path_len += 28;
+    char *path_fmt = "/v2/hubs/%s/streams/%s/disabled";
+    int path_len = snprintf(NULL, 0, path_fmt, hub_name, encoded_stream_key) + 1;
     char *path = (char *) malloc(sizeof(char) * path_len);
-    memset(path, 0, path_len);
-    sprintf(path, "/v2/hubs/%s/streams/%s/disabled", hub_name, encoded_stream_key);
+    sprintf(path, path_fmt, hub_name, encoded_stream_key);
 
     //make body
     cJSON *req_root = cJSON_CreateObject();
@@ -294,14 +291,16 @@ int pili_stream_disable_till(const char *access_key, const char *secret_key, con
     const char *token = pili_sign_request(access_key, secret_key, PILI_API_HOST, "POST", path, PILI_MIME_JSON, body, 0);
     struct curl_slist *headers;
 
-    char *auth_header = (char *) malloc(strlen(token) + 15);
-    sprintf(auth_header, "Authorization: %s", token);
+    char *auth_fmt = "Authorization: %s";
+    int auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
+    char *auth_header = (char *) malloc(auth_len);
+    sprintf(auth_header, auth_fmt, token);
+
     headers = curl_slist_append(NULL, auth_header);
     headers = curl_slist_append(headers, "Content-Type: application/json");
 
     size_t url_len = strlen(PILI_API_ADDRESS) + strlen(path) + 1;
     char *url = (char *) malloc(url_len);
-    memset(url, 0, url_len);
     sprintf(url, "%s%s", PILI_API_ADDRESS, path);
 
     int resp_code;
@@ -331,6 +330,7 @@ int pili_stream_disable_till(const char *access_key, const char *secret_key, con
     //clean
     cJSON_Delete((void *) req_root);
     curl_slist_free_all(headers);
+    free((void *) auth_header);
     free((void *) token);
     free((void *) body);
     free((void *) path);
@@ -353,11 +353,10 @@ const char *pili_stream_saveas_period(const char *access_key, const char *secret
     memset(encoded_stream_key, 0, encoded_stream_key_len + 1);
     urlsafe_b64_encode(stream_key, strlen(stream_key), encoded_stream_key, encoded_stream_key_len);
 
-    size_t path_len = strlen(hub_name) + strlen(encoded_stream_key);
-    path_len += 26;
+    char *path_fmt = "/v2/hubs/%s/streams/%s/saveas";
+    int path_len = snprintf(NULL, 0, path_fmt, hub_name, encoded_stream_key) + 1;
     char *path = (char *) malloc(sizeof(char) * path_len);
-    memset(path, 0, path_len);
-    sprintf(path, "/v2/hubs/%s/streams/%s/saveas", hub_name, encoded_stream_key);
+    sprintf(path, path_fmt, hub_name, encoded_stream_key);
 
     //make body
     cJSON *req_root = cJSON_CreateObject();
@@ -372,14 +371,16 @@ const char *pili_stream_saveas_period(const char *access_key, const char *secret
     const char *token = pili_sign_request(access_key, secret_key, PILI_API_HOST, "POST", path, PILI_MIME_JSON, body, 0);
     struct curl_slist *headers;
 
-    char *auth_header = (char *) malloc(strlen(token) + 15);
-    sprintf(auth_header, "Authorization: %s", token);
+    char *auth_fmt = "Authorization: %s";
+    int auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
+    char *auth_header = (char *) malloc(auth_len);
+    sprintf(auth_header, auth_fmt, token);
+
     headers = curl_slist_append(NULL, auth_header);
     headers = curl_slist_append(headers, "Content-Type: application/json");
 
     size_t url_len = strlen(PILI_API_ADDRESS) + strlen(path) + 1;
     char *url = (char *) malloc(url_len);
-    memset(url, 0, url_len);
     sprintf(url, "%s%s", PILI_API_ADDRESS, path);
 
     int resp_code;
@@ -403,7 +404,6 @@ const char *pili_stream_saveas_period(const char *access_key, const char *secret
                 if (fname_obj) {
                     char *fname = fname_obj->valuestring;
                     saveas_file_name = (char *) malloc(sizeof(char) * (strlen(fname) + 1));
-                    memset(saveas_file_name, 0, strlen(fname) + 1);
                     strcpy(saveas_file_name, fname);
                 }
             }
@@ -414,6 +414,7 @@ const char *pili_stream_saveas_period(const char *access_key, const char *secret
     //clean
     cJSON_Delete(req_root);
     curl_slist_free_all(headers);
+    free((void *) auth_header);
     free((void *) token);
     free((void *) body);
     free((void *) path);
@@ -423,34 +424,33 @@ const char *pili_stream_saveas_period(const char *access_key, const char *secret
 
 int pili_stream_history(const char *access_key, const char *secret_key, const char *hub_name,
                         const char *stream_key, const long start_time, const long end_time,
-                        struct pili_stream_history_item *head, char *error) {
+                        struct pili_stream_history_ret *history_ret, char *error) {
     int ret = 0;
     size_t encoded_stream_key_len = urlsafe_b64_encode(stream_key, strlen(stream_key), NULL, 0);
     char *encoded_stream_key = (char *) malloc(sizeof(char) * (encoded_stream_key_len + 1));
     memset(encoded_stream_key, 0, encoded_stream_key_len + 1);
     urlsafe_b64_encode(stream_key, strlen(stream_key), encoded_stream_key, encoded_stream_key_len);
 
-    size_t path_len = strlen(hub_name) + strlen(encoded_stream_key);
-    path_len += 35;
+    char *path_fmt = "/v2/hubs/%s/streams/%s/historyactivity";
+    int path_len = snprintf(NULL, 0, path_fmt, hub_name, encoded_stream_key) + 1;
     char *path = (char *) malloc(sizeof(char) * path_len);
-    memset(path, 0, path_len);
-    sprintf(path, "/v2/hubs/%s/streams/%s/historyactivity", hub_name, encoded_stream_key);
+    sprintf(path, path_fmt, hub_name, encoded_stream_key);
 
     //make query
-    long start_time_len = snprintf(NULL, 0, "%ld", start_time);
-    long end_time_len = snprintf(NULL, 0, "%ld", end_time);
-    size_t query_len = start_time_len + end_time_len;
-    query_len += 12;
+    char *query_fmt = "start=%ld&end=%ld";
+    int query_len = snprintf(NULL, 0, query_fmt, start_time, end_time) + 1;
     char *query = (char *) malloc(sizeof(char) * query_len);
-    memset(query, 0, query_len);
-    sprintf(query, "start=%ld&end=%ld", start_time, end_time);
+    sprintf(query, query_fmt, start_time, end_time);
 
     const char *token = pili_sign_request(access_key, secret_key, PILI_API_HOST, "GET", path, PILI_MIME_URLENCODED, 0,
                                           query);
     struct curl_slist *headers;
 
-    char *auth_header = (char *) malloc(strlen(token) + 15);
-    sprintf(auth_header, "Authorization: %s", token);
+    char *auth_fmt = "Authorization: %s";
+    int auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
+    char *auth_header = (char *) malloc(auth_len);
+    sprintf(auth_header, auth_fmt, token);
+
     headers = curl_slist_append(NULL, auth_header);
     headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
 
@@ -480,38 +480,45 @@ int pili_stream_history(const char *access_key, const char *secret_key, const ch
                 ret = -1;
             } else {
                 //parse history
-                if (head) {
+                if (history_ret) {
                     cJSON *items_obj = cJSON_GetObjectItem(resp_root, "items");
                     int items_cnt = cJSON_GetArraySize(items_obj);
 
-                    struct pili_stream_history_item *history_next = head;
-                    struct pili_stream_history_item *history_pre = 0;
+                    if (items_cnt > 0) {
+                        history_ret->head = (struct pili_stream_history_item *) malloc(
+                                sizeof(struct pili_stream_history_item));
 
-                    int i;
+                        struct pili_stream_history_item *item_next = history_ret->head;
+                        struct pili_stream_history_item *item_pre = 0;
 
-                    for (i = 0; i < items_cnt; i++) {
-                        cJSON *item = cJSON_GetArrayItem(items_obj, i);
-                        cJSON *start_obj = cJSON_GetObjectItem(item, "start");
-                        long start = (long) start_obj->valuedouble;
-                        cJSON *end_obj = cJSON_GetObjectItem(item, "end");
-                        long end = (long) end_obj->valuedouble;
+                        for (int i = 0; i < items_cnt; i++) {
+                            cJSON *item = cJSON_GetArrayItem(items_obj, i);
+                            cJSON *start_obj = cJSON_GetObjectItem(item, "start");
+                            long start = (long) start_obj->valuedouble;
+                            cJSON *end_obj = cJSON_GetObjectItem(item, "end");
+                            long end = (long) end_obj->valuedouble;
 
-                        if (!history_next) {
-                            history_next = (struct pili_stream_history_item *) malloc(
-                                    sizeof(struct pili_stream_history_item));
+                            if (!item_next) {
+                                item_next = (struct pili_stream_history_item *) malloc(
+                                        sizeof(struct pili_stream_history_item));
+                            }
+
+                            item_next->start = start;
+                            item_next->end = end;
+                            item_next->next = 0;
+
+                            if (item_pre) {
+                                item_pre->next = item_next;
+                            }
+
+                            item_pre = item_next;
+                            item_next = 0;
                         }
-                        history_next->start = start;
-                        history_next->end = end;
-                        history_next->next = 0;
 
-                        if (history_pre) {
-                            history_pre->next = history_next;
-                        }
-                        history_pre = history_next;
-                        history_next = 0;
+                        cJSON_Delete(resp_root);
+                    } else {
+                        history_ret->head = 0;
                     }
-
-                    cJSON_Delete(resp_root);
                 }
             }
 
@@ -521,6 +528,7 @@ int pili_stream_history(const char *access_key, const char *secret_key, const ch
     }
     //clean
     curl_slist_free_all(headers);
+    free((void *) auth_header);
     free((void *) token);
     free((void *) query);
     free((void *) path);
@@ -533,62 +541,31 @@ int pili_stream_list(const char *access_key, const char *secret_key, const char 
                      struct pili_stream_list_ret *list_ret, char *error) {
     int ret = 0;
 
-    size_t prefix_len = 0, marker_len = 0;
-    size_t limit_len = snprintf(NULL, 0, "%d", limit);
-    char *live_only_str = "false";
-    char *list_prefix = 0;
-    char *list_marker = 0;
-
-
-    if (live_only == 1) {
-        live_only_str = "true";
-    }
-    if (prefix && strcmp(prefix, "") != 0) {
-        list_prefix = strdup(prefix);
-        prefix_len = strlen(prefix);
-    } else {
-        list_prefix = "";
-    }
-
-    if (marker && strcmp(marker, "") != 0) {
-        list_marker = strdup(marker);
-        marker_len = strlen(marker);
-    } else {
-        list_marker = "";
-    }
-
-    size_t path_len = strlen(hub_name);
-    path_len += 18;
+    char *path_fmt = "/v2/hubs/%s/streams";
+    int path_len = snprintf(NULL, 0, path_fmt, hub_name) + 1;
     char *path = (char *) malloc(sizeof(char) * path_len);
-    memset(path, 0, path_len);
-    sprintf(path, "/v2/hubs/%s/streams", hub_name);
+    sprintf(path, path_fmt, hub_name);
 
-    size_t query_len = strlen(live_only_str) + prefix_len + marker_len + limit_len;
-    query_len += 33;
+    char *query_fmt = "liveonly=%s&prefix=%s&limit=%d&marker=%s";
+    int query_len = snprintf(NULL, 0, query_fmt, (live_only == 1) ? "true" : "false", prefix ? prefix : "", limit,
+                             marker ? marker : "") + 1;
     char *query = (char *) malloc(sizeof(char) * query_len);
-    memset(query, 0, query_len);
-    sprintf(query, "liveonly=%s&prefix=%s&limit=%d&marker=%s", live_only_str, list_prefix, limit, list_marker);
-
-    if (strcmp(list_marker, "") != 0) {
-        free((void *) list_marker);
-    }
-
-    if (strcmp(list_prefix, "") != 0) {
-        free((void *) list_prefix);
-    }
+    sprintf(query, query_fmt, (live_only == 1) ? "true" : "false", prefix ? prefix : "", limit, marker ? marker : "");
 
     const char *token = pili_sign_request(access_key, secret_key, PILI_API_HOST, "GET", path, PILI_MIME_URLENCODED, 0,
                                           query);
     struct curl_slist *headers;
 
-    char *auth_header = (char *) malloc(strlen(token) + 15);
-    sprintf(auth_header, "Authorization: %s", token);
+    char *auth_fmt = "Authorization: %s";
+    int auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
+    char *auth_header = (char *) malloc(auth_len);
+    sprintf(auth_header, auth_fmt, token);
+
     headers = curl_slist_append(NULL, auth_header);
     headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
 
     size_t url_len = strlen(PILI_API_ADDRESS) + strlen(path) + strlen(query) + 2;
     char *url = (char *) malloc(url_len);
-    memset(url, 0, url_len);
     sprintf(url, "%s%s?%s", PILI_API_ADDRESS, path, query);
 
     int resp_code;
@@ -617,43 +594,44 @@ int pili_stream_list(const char *access_key, const char *secret_key, const char 
                     char *next_marker = marker_obj->valuestring;
                     size_t next_marker_len = strlen(next_marker) + 1;
                     list_ret->marker = (char *) malloc(sizeof(char) * next_marker_len);
-                    memset(list_ret->marker, 0, next_marker_len);
                     strcpy(list_ret->marker, next_marker);
 
                     cJSON *items_obj = cJSON_GetObjectItem(resp_root, "items");
                     int items_cnt = cJSON_GetArraySize(items_obj);
 
-                    list_ret->head = (struct pili_stream_list_item *) malloc(sizeof(struct pili_stream_list_item));
+                    if (items_cnt > 0) {
+                        list_ret->head = (struct pili_stream_list_item *) malloc(sizeof(struct pili_stream_list_item));
 
-                    struct pili_stream_list_item *item_next = list_ret->head;
-                    struct pili_stream_list_item *item_pre = 0;
+                        struct pili_stream_list_item *item_next = list_ret->head;
+                        struct pili_stream_list_item *item_pre = 0;
 
-                    int i;
+                        int i;
 
-                    for (i = 0; i < items_cnt; i++) {
-                        cJSON *item = cJSON_GetArrayItem(items_obj, i);
-                        cJSON *key_obj = cJSON_GetObjectItem(item, "key");
+                        for (i = 0; i < items_cnt; i++) {
+                            cJSON *item = cJSON_GetArrayItem(items_obj, i);
+                            cJSON *key_obj = cJSON_GetObjectItem(item, "key");
 
-                        if (!item_next) {
-                            item_next = (struct pili_stream_list_item *) malloc(
-                                    sizeof(struct pili_stream_list_item));
+                            if (!item_next) {
+                                item_next = (struct pili_stream_list_item *) malloc(
+                                        sizeof(struct pili_stream_list_item));
+                            }
+
+                            char *key = key_obj->valuestring;
+                            size_t key_len = strlen(key) + 1;
+                            item_next->key = (char *) malloc(sizeof(char) * key_len);
+                            strcpy(item_next->key, key);
+                            item_next->next = 0;
+
+                            if (item_pre) {
+                                item_pre->next = item_next;
+                            }
+
+                            item_pre = item_next;
+                            item_next = 0;
                         }
-
-                        char *key = key_obj->valuestring;
-                        size_t key_len = strlen(key) + 1;
-                        item_next->key = (char *) malloc(sizeof(char) * key_len);
-                        memset(item_next->key, 0, key_len);
-                        strcpy(item_next->key, key);
-                        item_next->next = 0;
-
-                        if (item_pre) {
-                            item_pre->next = item_next;
-                        }
-
-                        item_pre = item_next;
-                        item_next = 0;
+                    } else {
+                        list_ret->head = 0;
                     }
-
                     cJSON_Delete(resp_root);
                 }
             }
@@ -664,6 +642,7 @@ int pili_stream_list(const char *access_key, const char *secret_key, const char 
     }
     //clean
     curl_slist_free_all(headers);
+    free((void *) auth_header);
     free((void *) token);
     free((void *) query);
     free((void *) path);
