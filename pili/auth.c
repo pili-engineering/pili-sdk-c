@@ -35,7 +35,7 @@ const char *pili_hmac_sha1(const char *access_key, const char *secret_key, const
 const char *pili_sign_request(const char *access_key, const char *secret_key, const char *host, const char *method,
                               const char *path, const char *content_type, const char *body, const char *query) {
     char *data_to_sign_fmt = "%s %s%s%s\nHost: %s\nContent-Type: %s\n\n%s";
-    size_t data_to_sign_len = snprintf(NULL, 0, data_to_sign_fmt, method, path,
+    int data_to_sign_len = snprintf(NULL, 0, data_to_sign_fmt, method, path,
                                        query ? "?" : "", query ? query : "", host, content_type, body ? body : "") + 1;
     char *data_to_sign = (char *) malloc(sizeof(char) * data_to_sign_len);
     sprintf(data_to_sign, data_to_sign_fmt, method, path,

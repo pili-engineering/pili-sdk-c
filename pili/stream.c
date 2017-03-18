@@ -20,7 +20,7 @@ int pili_create_stream(const char *access_key, const char *secret_key, const cha
 
     //create path
     char *path_fmt = "/v2/hubs/%s/streams";
-    size_t path_len = snprintf(NULL, 0, path_fmt, hub_name) + 1;
+    int path_len = snprintf(NULL, 0, path_fmt, hub_name) + 1;
     char *path = (char *) malloc(sizeof(char) * path_len);
     sprintf(path, path_fmt, hub_name);
 
@@ -34,7 +34,7 @@ int pili_create_stream(const char *access_key, const char *secret_key, const cha
     struct curl_slist *headers;
 
     char *auth_fmt = "Authorization: %s";
-    size_t auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
+    int auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
     char *auth_header = (char *) malloc(auth_len);
     sprintf(auth_header, auth_fmt, token);
 
@@ -90,7 +90,7 @@ int pili_stream_attribute(const char *access_key, const char *secret_key, const 
     urlsafe_b64_encode(stream_key, strlen(stream_key), encoded_stream_key, encoded_stream_key_len);
 
     char *path_fmt = "/v2/hubs/%s/streams/%s";
-    size_t path_len = snprintf(NULL, 0, path_fmt, hub_name, encoded_stream_key) + 1;
+    int path_len = snprintf(NULL, 0, path_fmt, hub_name, encoded_stream_key) + 1;
     char *path = (char *) malloc(sizeof(char) * path_len);
     sprintf(path, path_fmt, hub_name, encoded_stream_key);
 
@@ -99,7 +99,7 @@ int pili_stream_attribute(const char *access_key, const char *secret_key, const 
     struct curl_slist *headers;
 
     char *auth_fmt = "Authorization: %s";
-    size_t auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
+    int auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
     char *auth_header = (char *) malloc(auth_len);
     sprintf(auth_header, auth_fmt, token);
 
@@ -176,7 +176,7 @@ int pili_stream_status(const char *access_key, const char *secret_key, const cha
     urlsafe_b64_encode(stream_key, strlen(stream_key), encoded_stream_key, encoded_stream_key_len);
 
     char *path_fmt = "/v2/hubs/%s/streams/%s/live";
-    size_t path_len = snprintf(NULL, 0, hub_name, encoded_stream_key) + 1;
+    int path_len = snprintf(NULL, 0, path_fmt, hub_name, encoded_stream_key) + 1;
     char *path = (char *) malloc(sizeof(char) * path_len);
     sprintf(path, path_fmt, hub_name, encoded_stream_key);
 
@@ -185,7 +185,7 @@ int pili_stream_status(const char *access_key, const char *secret_key, const cha
     struct curl_slist *headers;
 
     char *auth_fmt = "Authorization: %s";
-    size_t auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
+    int auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
     char *auth_header = (char *) malloc(auth_len);
     sprintf(auth_header, auth_fmt, token);
 
