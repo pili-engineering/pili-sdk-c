@@ -17,28 +17,32 @@ int pili_create_stream(const char *access_key, const char *secret_key, const cha
                        const char *stream_key,
                        char *error) {
     int ret = 0;
-    size_t path_len = strlen(hub_name) + strlen(stream_key);
-    path_len += 18;
+
+    //create path
+    char *path_fmt = "/v2/hubs/%s/streams";
+    size_t path_len = snprintf(NULL, 0, path_fmt, hub_name) + 1;
     char *path = (char *) malloc(sizeof(char) * path_len);
-    memset(path, 0, path_len);
-    sprintf(path, "/v2/hubs/%s/streams", hub_name);
+    sprintf(path, path_fmt, hub_name);
 
     //make body
     cJSON *req_root = cJSON_CreateObject();
     cJSON_AddItemToObject(req_root, "key", cJSON_CreateString(stream_key));
     const char *body = cJSON_PrintUnformatted(req_root);
 
+    //make headers
     const char *token = pili_sign_request(access_key, secret_key, PILI_API_HOST, "POST", path, PILI_MIME_JSON, body, 0);
     struct curl_slist *headers;
 
-    char *auth_header = (char *) malloc(strlen(token) + 15);
-    sprintf(auth_header, "Authorization: %s", token);
+    char *auth_fmt = "Authorization: %s";
+    size_t auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
+    char *auth_header = (char *) malloc(auth_len);
+    sprintf(auth_header, auth_fmt, token);
+
     headers = curl_slist_append(NULL, auth_header);
     headers = curl_slist_append(headers, "Content-Type: application/json");
 
     size_t url_len = strlen(PILI_API_ADDRESS) + strlen(path) + 1;
     char *url = (char *) malloc(url_len);
-    memset(url, 0, url_len);
     sprintf(url, "%s%s", PILI_API_ADDRESS, path);
 
     int resp_code;
@@ -66,8 +70,9 @@ int pili_create_stream(const char *access_key, const char *secret_key, const cha
     }
 
     //clean
-    free((void *) req_root);
     curl_slist_free_all(headers);
+    free((void *) req_root);
+    free((void *) auth_header);
     free((void *) token);
     free((void *) body);
     free((void *) path);
@@ -327,13 +332,13 @@ int pili_stream_disable_till(const char *access_key, const char *secret_key, con
 }
 
 const char *pili_stream_saveas_whole(const char *access_key, const char *secret_key, const char *hub_name,
-                               const char *stream_key, const char *dst_file_name, char *error) {
+                                     const char *stream_key, const char *dst_file_name, char *error) {
     return pili_stream_saveas_period(access_key, secret_key, hub_name, stream_key, dst_file_name, 0, 0, error);
 }
 
 const char *pili_stream_saveas_period(const char *access_key, const char *secret_key, const char *hub_name,
-                                const char *stream_key, const char *dst_file_name,
-                                const long start_time, const long end_time, char *error) {
+                                      const char *stream_key, const char *dst_file_name,
+                                      const long start_time, const long end_time, char *error) {
     char *saveas_file_name = 0;
 
     size_t encoded_stream_key_len = urlsafe_b64_encode(stream_key, strlen(stream_key), NULL, 0);
