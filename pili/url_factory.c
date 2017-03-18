@@ -67,7 +67,7 @@ const char *pili_hls_play_url(const char *hls_play_domain, const char *hub_name,
 
 const char *pili_snapshot_url(const char *snapshot_domain, const char *hub_name, const char *stream_key) {
     char *dst_fmt = "http://%s/%s/%s.jpg";
-    size_t dst_len = snprintf(snapshot_domain, hub_name, stream_key) + 1;
+    size_t dst_len = snprintf(NULL, 0, dst_fmt, snapshot_domain, hub_name, stream_key) + 1;
 
     char *snapshot_url = (char *) malloc(sizeof(char) * dst_len);
     sprintf(snapshot_url, dst_fmt, snapshot_domain, hub_name, stream_key);
