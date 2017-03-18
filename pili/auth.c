@@ -27,7 +27,6 @@ const char *pili_hmac_sha1(const char *access_key, const char *secret_key, const
 
     size_t final_token_len = strlen(access_key) + strlen(dst_encoded_str) + 2;
     char *final_token = (char *) malloc(sizeof(char) * (final_token_len));
-    memset(final_token, 0, final_token_len);
     sprintf(final_token, "%s:%s", access_key, dst_encoded_str);
     free((void *) dst_encoded_str);
     return final_token;
@@ -41,7 +40,7 @@ const char *pili_sign_request(const char *access_key, const char *secret_key, co
     char *data_to_sign = (char *) malloc(sizeof(char) * data_to_sign_len);
     sprintf(data_to_sign, data_to_sign_fmt, method, path,
             query ? "?" : "", query ? query : "", host, content_type, body ? body : "");
-    //printf("%s\n", data_to_sign);
+    printf("%s\n", data_to_sign);
     const char *sign = pili_hmac_sha1(access_key, secret_key, data_to_sign);
     size_t dst_token_len = strlen(sign) + 7;
     char *final_token = (char *) malloc(dst_token_len);

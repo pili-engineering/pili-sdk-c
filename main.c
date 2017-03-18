@@ -7,8 +7,8 @@
 
 int main(int argc, char **argv) {
 
-    const char *access_key = "";
-    const char *secret_key = "";
+    const char *access_key = "MqF35-H32j1PH8igh-am7aEkduP511g-5-F7j47Z";
+    const char *secret_key = "BF9QHMKIUQp_Oh4Xk8SwyhmwJ0CO-9n-RJzDgZQr";
 
     const char *rtmp_publish_domain = "pili-publish.ps.qiniucdn.com";
     const char *rtmp_play_domain = "pili-live-rtmp.ps.qiniucdn.com";
@@ -19,6 +19,7 @@ int main(int argc, char **argv) {
     const char *hub_name = "NIU7PS";
     const char *stream_key = "zhebao-tui";
 
+    /*
     ///url factory example code
     const char *rtmp_publish_url_noauth = pili_rtmp_publish_url_with_noauth(rtmp_publish_domain, hub_name, stream_key);
     printf("rtmp publish(noauth):\t%s\n", rtmp_publish_url_noauth);
@@ -47,17 +48,16 @@ int main(int argc, char **argv) {
     printf("snapshot:\t%s\n", snapshot_url);
     free((void *) snapshot_url);
 
+     */
     //shared
     char error[1024];
     int ret;
 
-
+/*
     ///create stream
     long ts = (long) time(NULL);
-    int ts_len = snprintf(NULL, 0, "%ld", ts);
-    ts_len += 5;
+    int ts_len = snprintf(NULL, 0, "csdk%ld", ts) + 1;
     char *new_stream_key = (char *) malloc(sizeof(char) * ts_len);
-    memset(new_stream_key, 0, ts_len);
     sprintf(new_stream_key, "csdk%ld", ts);
 
     printf("create new stream: %s\n", new_stream_key);
@@ -65,12 +65,13 @@ int main(int argc, char **argv) {
     printf("create stream ret: %d\terror: %s\n", ret, error);
     free((void *) new_stream_key);
 
-
+*/
     //get stream attribute
+    stream_key="csdk1489840201";
     struct pili_stream_attribute attribute;
     ret = pili_stream_attribute(access_key, secret_key, hub_name, stream_key, &attribute, error);
+    printf("stream attribute ret: %d\terror: %s\n", ret, error);
     if (ret == 0) {
-        printf("stream attribute ret: %d\terror: %s\n", ret, error);
         printf("stream createdAt: %ld\n", attribute.created_at);
         printf("stream updatedAt: %ld\n", attribute.updated_at);
         printf("stream expireAt: %ld\n", attribute.expire_at);
@@ -78,8 +79,8 @@ int main(int argc, char **argv) {
     }
 
 
+/*
     //get stream status
-    stream_key = "csdk1489721888";
     struct pili_stream_status status;
     ret = pili_stream_status(access_key, secret_key, hub_name, stream_key, &status, error);
     if (ret == 0) {
@@ -155,5 +156,5 @@ int main(int argc, char **argv) {
         }
         free((void *) list_ret.marker);
     }
-
+*/
 }

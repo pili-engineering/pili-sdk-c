@@ -89,18 +89,20 @@ int pili_stream_attribute(const char *access_key, const char *secret_key, const 
     memset(encoded_stream_key, 0, encoded_stream_key_len + 1);
     urlsafe_b64_encode(stream_key, strlen(stream_key), encoded_stream_key, encoded_stream_key_len);
 
-
-    size_t path_len = strlen(hub_name) + strlen(encoded_stream_key);
-    path_len += 19;
+    char *path_fmt = "/v2/hubs/%s/streams/%s";
+    size_t path_len = snprintf(NULL, 0, path_fmt, hub_name, encoded_stream_key) + 1;
     char *path = (char *) malloc(sizeof(char) * path_len);
-    memset(path, 0, path_len);
-    sprintf(path, "/v2/hubs/%s/streams/%s", hub_name, encoded_stream_key);
+    sprintf(path, path_fmt, hub_name, encoded_stream_key);
 
     const char *token = pili_sign_request(access_key, secret_key, PILI_API_HOST, "GET", path, PILI_MIME_URLENCODED, 0,
                                           0);
     struct curl_slist *headers;
-    char *auth_header = (char *) malloc(strlen(token) + 15);
-    sprintf(auth_header, "Authorization: %s", token);
+
+    char *auth_fmt = "Authorization: %s";
+    size_t auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
+    char *auth_header = (char *) malloc(auth_len);
+    sprintf(auth_header, auth_fmt, token);
+
     headers = curl_slist_append(NULL, auth_header);
     headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
 
@@ -132,19 +134,19 @@ int pili_stream_attribute(const char *access_key, const char *secret_key, const 
                 if (attribute) {
                     cJSON *created_at_obj = cJSON_GetObjectItem(resp_root, "createdAt");
                     if (created_at_obj) {
-                        attribute->created_at = strtol(created_at_obj->valuestring, NULL, 10);
+                        attribute->created_at = (long) created_at_obj->valuedouble;
                     }
                     cJSON *updated_at_obj = cJSON_GetObjectItem(resp_root, "updatedAt");
                     if (updated_at_obj) {
-                        attribute->updated_at = strtol(updated_at_obj->valuestring, NULL, 0);
+                        attribute->updated_at = (long) updated_at_obj->valuedouble;
                     }
                     cJSON *expire_at_obj = cJSON_GetObjectItem(resp_root, "expireAt");
                     if (expire_at_obj) {
-                        attribute->expire_at = strtol(expire_at_obj->valuestring, NULL, 0);
+                        attribute->expire_at = (long) expire_at_obj->valuedouble;
                     }
                     cJSON *disabled_till_obj = cJSON_GetObjectItem(resp_root, "disabledTill");
                     if (disabled_till_obj) {
-                        attribute->disabled_till = strtol(disabled_till_obj->valuestring, NULL, 0);
+                        attribute->disabled_till = (long) disabled_till_obj->valuedouble;
                     }
                 }
             }
@@ -157,6 +159,7 @@ int pili_stream_attribute(const char *access_key, const char *secret_key, const 
     //clean
     curl_slist_free_all(headers);
     free((void *) encoded_stream_key);
+    free((void *) auth_header);
     free((void *) token);
     free((void *) path);
     free((void *) resp_body.memory);
@@ -171,7 +174,7 @@ int pili_stream_status(const char *access_key, const char *secret_key, const cha
     char *encoded_stream_key = (char *) malloc(sizeof(char) * (encoded_stream_key_len + 1));
     memset(encoded_stream_key, 0, encoded_stream_key_len + 1);
     urlsafe_b64_encode(stream_key, strlen(stream_key), encoded_stream_key, encoded_stream_key_len);
-
+    
     size_t path_len = strlen(hub_name) + strlen(encoded_stream_key);
     path_len += 24;
     char *path = (char *) malloc(sizeof(char) * path_len);
