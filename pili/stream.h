@@ -64,8 +64,8 @@ int pili_stream_list(const char *access_key, const char *secret_key, const char 
  * return 0 on success, or find error in *error
  * */
 int pili_stream_history(const char *access_key, const char *secret_key, const char *hub_name,
-                              const char *stream_key, const long start_time, const long end_time,
-                              struct pili_stream_history_item *head, char *error);
+                        const char *stream_key, const long start_time, const long end_time,
+                        struct pili_stream_history_item *head, char *error);
 
 /**
  * return 0 on success, or find error in *error
@@ -83,14 +83,14 @@ int pili_stream_disable_till(const char *access_key, const char *secret_key, con
  * return saveas file not null on success, or find error in *error
  * */
 const char *pili_stream_saveas_whole(const char *access_key, const char *secret_key, const char *hub_name,
-                               const char *stream_key, const char *dst_file_name, char *error);
+                                     const char *stream_key, const char *dst_file_name, char *error);
 
 /**
  * return saveas file not null on success, or find error in *error
  * */
 const char *pili_stream_saveas_period(const char *access_key, const char *secret_key, const char *hub_name,
-                                const char *stream_key, const char *dst_file_name,
-                                const long start_time, const long end_time, char *error);
+                                      const char *stream_key, const char *dst_file_name,
+                                      const long start_time, const long end_time, char *error);
 
 
 #endif //PILI_SDK_C_STREAM_H
