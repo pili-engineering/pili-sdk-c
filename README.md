@@ -141,6 +141,7 @@ free((void *) snapshot_url);
 char error[1024];
 int ret;
 
+memset(error, 0, 1024);
 ///create stream
 long ts = (long) time(NULL);
 int ts_len = snprintf(NULL, 0, "%ld", ts);
@@ -163,6 +164,7 @@ free((void *) new_stream_key);
 char error[1024];
 int ret;
 
+memset(error, 0, 1024);
 //get stream attribute
 struct pili_stream_attribute attribute;
 ret = pili_stream_attribute(access_key, secret_key, hub_name, stream_key, &attribute, error);
@@ -182,7 +184,7 @@ if (ret == 0) {
 ```
 char error[1024];
 int ret;
-memset(error, 0, ERROR_LEN);
+memset(error, 0, 1024);
 
 //list stream
 struct pili_stream_list_ret list_ret;
@@ -223,6 +225,7 @@ if (ret == 0) {
 char error[1024];
 int ret;
 
+memset(error, 0, 1024);
 //disable the stream forever
 ret = pili_stream_disable_till(access_key, secret_key, hub_name, stream_key, -1, error);
 printf("stream disable till ret: %d\terror: %s\n", ret, error);
@@ -241,6 +244,7 @@ printf("stream disable till %ld ret: %d\terror: %s\n", disable_till, ret, error)
 char error[1024];
 int ret;
 
+memset(error, 0, 1024);
 //enable the stream
 ret = pili_stream_enable(access_key, secret_key, hub_name, stream_key, error);
 printf("stream enabled ret: %d\terror: %s\n", ret, error);
@@ -252,6 +256,7 @@ printf("stream enabled ret: %d\terror: %s\n", ret, error);
 char error[1024];
 int ret;
 
+memset(error, 0, 1024);
 struct pili_stream_status status;
 ret = pili_stream_status(access_key, secret_key, hub_name, stream_key, &status, error);
 if (ret == 0) {
@@ -271,6 +276,7 @@ if (ret == 0) {
 char error[1024];
 int ret;
 
+memset(error, 0, 1024);
 const char *saveas_file_name = pili_stream_saveas_whole(access_key, secret_key, hub_name, stream_key, 0, error);
 printf("stream saveas ret: %s\terror: %s\n", saveas_file_name, error);
 free((void *) saveas_file_name);
@@ -283,8 +289,8 @@ free((void *) saveas_file_name);
 ```
 char error[1024];
 int ret;
-memset(error, 0, ERROR_LEN);
 
+memset(error, 0, 1024);
 //get stream history
 struct pili_stream_history_ret history_ret;
 ret = pili_stream_history(access_key, secret_key, hub_name, stream_key, 0, 0, &history_ret, error);
