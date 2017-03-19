@@ -30,6 +30,7 @@ struct pili_stream_history_item {
 
 struct pili_stream_history_ret {
     struct pili_stream_history_item *head;
+    int items_count;
 };
 
 struct pili_stream_list_item {
@@ -39,6 +40,7 @@ struct pili_stream_list_item {
 
 struct pili_stream_list_ret {
     struct pili_stream_list_item *head;
+    int items_count;
     char *marker;
 };
 

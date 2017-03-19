@@ -182,6 +182,7 @@ if (ret == 0) {
 ```
 char error[1024];
 int ret;
+memset(error, 0, ERROR_LEN);
 
 //list stream
 struct pili_stream_list_ret list_ret;
@@ -192,6 +193,7 @@ int live_only = 0;
 ret = pili_stream_list(access_key, secret_key, hub_name, prefix, live_only, limit, marker, &list_ret, error);
 printf("stream list ret: %d\terror: %s\n", ret, error);
 if (ret == 0) {
+    printf("stream list items count: %d\n", list_ret.items_count);
     //if marker not empty, there are still streams to be iterated
     printf("stream list next marker: %s\n", list_ret.marker);
     struct pili_stream_list_item *iter = list_ret.head;
@@ -281,12 +283,14 @@ free((void *) saveas_file_name);
 ```
 char error[1024];
 int ret;
+memset(error, 0, ERROR_LEN);
 
 //get stream history
 struct pili_stream_history_ret history_ret;
 ret = pili_stream_history(access_key, secret_key, hub_name, stream_key, 0, 0, &history_ret, error);
 printf("stream history ret: %d\terror: %s\n", ret, error);
 if (ret == 0) {
+    printf("stream history items count: %d\n", history_ret.items_count);
     struct pili_stream_history_item *iter = history_ret.head;
     //skip the head
     while (iter) {

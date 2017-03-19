@@ -483,7 +483,7 @@ int pili_stream_history(const char *access_key, const char *secret_key, const ch
                 if (history_ret) {
                     cJSON *items_obj = cJSON_GetObjectItem(resp_root, "items");
                     int items_cnt = cJSON_GetArraySize(items_obj);
-
+                    history_ret->items_count = items_cnt;
                     if (items_cnt > 0) {
                         history_ret->head = (struct pili_stream_history_item *) malloc(
                                 sizeof(struct pili_stream_history_item));
@@ -598,7 +598,7 @@ int pili_stream_list(const char *access_key, const char *secret_key, const char 
 
                     cJSON *items_obj = cJSON_GetObjectItem(resp_root, "items");
                     int items_cnt = cJSON_GetArraySize(items_obj);
-
+                    list_ret->items_count = items_cnt;
                     if (items_cnt > 0) {
                         list_ret->head = (struct pili_stream_list_item *) malloc(sizeof(struct pili_stream_list_item));
 
