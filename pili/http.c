@@ -63,6 +63,8 @@ int pili_post_request(const char *url, const struct curl_slist *headers, const c
         }
 
         curl_easy_cleanup(client);
+    } else {
+        ret = -1;
     }
 
     curl_global_cleanup();
@@ -107,6 +109,8 @@ int pili_get_request(const char *url, const struct curl_slist *headers,
         }
 
         curl_easy_cleanup(client);
+    } else {
+        ret = -1;
     }
 
     curl_global_cleanup();
