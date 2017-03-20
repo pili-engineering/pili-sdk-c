@@ -1,0 +1,15 @@
+﻿INCLUDE_PATH=-Ibase64 -IcJSON -Ipili
+
+SOURCE_FILES=\
+	base64/b64.c\
+	base64/urlsafe_b64.c\
+	cJSON/cJSON.c\
+	pili/auth.c\
+	pili/http.c\
+	pili/stream.c\
+	pili/url_factory.c\
+	main.c
+
+
+all: $(SOURCE_FILES)
+	gcc -g $^ -o pili_sdk_c $(INCLUDE_PATH) $(LINK_PATH) -lcurl -lcrypto -lssl -lm
