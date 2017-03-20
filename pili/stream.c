@@ -491,7 +491,8 @@ int pili_stream_history(const char *access_key, const char *secret_key, const ch
                         struct pili_stream_history_item *item_next = history_ret->head;
                         struct pili_stream_history_item *item_pre = 0;
 
-                        for (int i = 0; i < items_cnt; i++) {
+                        int i;
+                        for (i = 0; i < items_cnt; i++) {
                             cJSON *item = cJSON_GetArrayItem(items_obj, i);
                             cJSON *start_obj = cJSON_GetObjectItem(item, "start");
                             long start = (long) start_obj->valuedouble;
