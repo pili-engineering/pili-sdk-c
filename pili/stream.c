@@ -185,14 +185,14 @@ int pili_stream_status(const char *access_key, const char *secret_key, const cha
 
     char *auth_fmt = "Authorization: %s";
     int auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
-    char *auth_header = (char *) malloc(auth_len);
+    char *auth_header = (char *) malloc(sizeof(char) * auth_len);
     sprintf(auth_header, auth_fmt, token);
 
     headers = curl_slist_append(NULL, auth_header);
     headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
 
     size_t url_len = strlen(PILI_API_ADDRESS) + strlen(path) + 1;
-    char *url = (char *) malloc(url_len);
+    char *url = (char *) malloc(sizeof(char) * url_len);
     sprintf(url, "%s%s", PILI_API_ADDRESS, path);
 
     int resp_code;
@@ -293,14 +293,14 @@ int pili_stream_disable_till(const char *access_key, const char *secret_key, con
 
     char *auth_fmt = "Authorization: %s";
     int auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
-    char *auth_header = (char *) malloc(auth_len);
+    char *auth_header = (char *) malloc(sizeof(char) * auth_len);
     sprintf(auth_header, auth_fmt, token);
 
     headers = curl_slist_append(NULL, auth_header);
     headers = curl_slist_append(headers, "Content-Type: application/json");
 
     size_t url_len = strlen(PILI_API_ADDRESS) + strlen(path) + 1;
-    char *url = (char *) malloc(url_len);
+    char *url = (char *) malloc(sizeof(char) * url_len);
     sprintf(url, "%s%s", PILI_API_ADDRESS, path);
 
     int resp_code;
@@ -373,14 +373,14 @@ const char *pili_stream_saveas_period(const char *access_key, const char *secret
 
     char *auth_fmt = "Authorization: %s";
     int auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
-    char *auth_header = (char *) malloc(auth_len);
+    char *auth_header = (char *) malloc(sizeof(char) * auth_len);
     sprintf(auth_header, auth_fmt, token);
 
     headers = curl_slist_append(NULL, auth_header);
     headers = curl_slist_append(headers, "Content-Type: application/json");
 
     size_t url_len = strlen(PILI_API_ADDRESS) + strlen(path) + 1;
-    char *url = (char *) malloc(url_len);
+    char *url = (char *) malloc(sizeof(char) * url_len);
     sprintf(url, "%s%s", PILI_API_ADDRESS, path);
 
     int resp_code;
@@ -448,14 +448,14 @@ int pili_stream_history(const char *access_key, const char *secret_key, const ch
 
     char *auth_fmt = "Authorization: %s";
     int auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
-    char *auth_header = (char *) malloc(auth_len);
+    char *auth_header = (char *) malloc(sizeof(char) * auth_len);
     sprintf(auth_header, auth_fmt, token);
 
     headers = curl_slist_append(NULL, auth_header);
     headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
 
     size_t url_len = strlen(PILI_API_ADDRESS) + strlen(path) + strlen(query) + 2;
-    char *url = (char *) malloc(url_len);
+    char *url = (char *) malloc(sizeof(char) * url_len);
     memset(url, 0, url_len);
     sprintf(url, "%s%s?%s", PILI_API_ADDRESS, path, query);
 
@@ -559,14 +559,14 @@ int pili_stream_list(const char *access_key, const char *secret_key, const char 
 
     char *auth_fmt = "Authorization: %s";
     int auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
-    char *auth_header = (char *) malloc(auth_len);
+    char *auth_header = (char *) malloc(sizeof(char) * auth_len);
     sprintf(auth_header, auth_fmt, token);
 
     headers = curl_slist_append(NULL, auth_header);
     headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
 
     size_t url_len = strlen(PILI_API_ADDRESS) + strlen(path) + strlen(query) + 2;
-    char *url = (char *) malloc(url_len);
+    char *url = (char *) malloc(sizeof(char) * url_len);
     sprintf(url, "%s%s?%s", PILI_API_ADDRESS, path, query);
 
     int resp_code;

@@ -20,7 +20,7 @@ const char *pili_hmac_sha1(const char *access_key, const char *secret_key, const
     HMAC_cleanup(&ctx);
 
     size_t dst_encoded_len = urlsafe_b64_encode(digest, digest_len, NULL, 0);
-    char *dst_encoded_str = (char *) malloc(dst_encoded_len + 1);
+    char *dst_encoded_str = (char *) malloc(sizeof(char) * (dst_encoded_len + 1));
     memset(dst_encoded_str, 0, dst_encoded_len + 1);
     urlsafe_b64_encode(digest, digest_len, dst_encoded_str, dst_encoded_len);
 
@@ -39,12 +39,9 @@ const char *pili_sign_request(const char *access_key, const char *secret_key, co
     char *data_to_sign = (char *) malloc(sizeof(char) * data_to_sign_len);
     sprintf(data_to_sign, data_to_sign_fmt, method, path,
             query ? "?" : "", query ? query : "", host, content_type, body ? body : "");
-#ifdef PILI_DEBUG
-    printf("pili sign data:\n%s\n", data_to_sign);
-#endif
     const char *sign = pili_hmac_sha1(access_key, secret_key, data_to_sign);
     size_t dst_token_len = strlen(sign) + 7;
-    char *final_token = (char *) malloc(dst_token_len);
+    char *final_token = (char *) malloc(sizeof(char) * dst_token_len);
 
     sprintf(final_token, "Qiniu %s", sign);
     free((void *) data_to_sign);
