@@ -19,9 +19,9 @@ const char *pili_hmac_sha1(const char *access_key, const char *secret_key, const
     HMAC_Final(&ctx, digest, &digest_len);
     HMAC_cleanup(&ctx);
 
-    size_t dst_encoded_len = urlsafe_b64_encode(digest, digest_len, NULL, 0) + 1;
-    char *dst_encoded_str = (char *) malloc(dst_encoded_len);
-    memset(dst_encoded_str, 0, dst_encoded_len);
+    size_t dst_encoded_len = urlsafe_b64_encode(digest, digest_len, NULL, 0);
+    char *dst_encoded_str = (char *) malloc(dst_encoded_len + 1);
+    memset(dst_encoded_str, 0, dst_encoded_len + 1);
     urlsafe_b64_encode(digest, digest_len, dst_encoded_str, dst_encoded_len);
 
     size_t final_token_len = strlen(access_key) + strlen(dst_encoded_str) + 2;
