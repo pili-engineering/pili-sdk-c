@@ -98,5 +98,8 @@ const char *pili_stream_saveas_period(const char *access_key, const char *secret
                                       const char *stream_key, const char *dst_file_name,
                                       const long start_time, const long end_time, char *error);
 
+unsigned long pili_get_stream_storage(const char *access_key, const char *secret_key, const char *hub_name,
+                                      const char *stream_key, const char *hub_bucket, char *error);
+
 
 #endif //PILI_SDK_C_STREAM_H

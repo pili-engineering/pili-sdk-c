@@ -15,6 +15,7 @@ const char *hls_play_domain = "pili-live-hls.ps.qiniucdn.com";
 const char *snapshot_domain = "pili-static.ps.qiniucdn.com";
 
 const char *hub_name = "NIU7PS";
+const char *hub_bucket="NIU7PS";
 const char *stream_key = "zhebao-tui";
 const int ERROR_LEN = 200;
 
@@ -214,27 +215,14 @@ void get_stream_list() {
     }
 }
 
+void get_stream_storage(){
+    char error[1024];
+    memset(error, 0, ERROR_LEN);
+    unsigned long storage=pili_get_stream_storage(access_key,secret_key,hub_name,stream_key,hub_bucket,error);
+    printf("storage: %ld\t, error: %s",storage,error);
+}
+
 int main(int argc, char **argv) {
-    create_urls();
-    printf("\n");
-    create_stream();
-    printf("\n");
-    get_stream_attribute();
-    printf("\n");
-    get_stream_status();
-    printf("\n");
-    get_stream_history();
-    printf("\n");
-    get_stream_list();
-    printf("\n");
-    saveas_stream_period();
-    printf("\n");
-    saveas_stream_whole();
-    printf("\n");
-    disable_stream_forever();
-    printf("\n");
-    disable_stream_till();
-    printf("\n");
-    enable_stream();
-    printf("\n");
+    //create_urls();
+    get_stream_storage();
 }

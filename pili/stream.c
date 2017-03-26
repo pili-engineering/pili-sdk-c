@@ -650,3 +650,117 @@ int pili_stream_list(const char *access_key, const char *secret_key, const char 
     free((void *) resp_body.memory);
     return ret;
 }
+
+unsigned long pili_list_hub_bucket(const char *access_key, const char *secret_key, const char *hub_name,
+                                   const char *stream_key, const char *hub_bucket, char *marker, char *error) {
+    unsigned long total_storage = 0;
+
+    int limit = 1000;
+    char *rsf_api_address = "http://rsf-z1.qiniu.com";
+
+    //prefix
+    char *prefix_fmt = "fragments/z1.%s.%s/";
+    int prefix_fmt_len = snprintf(NULL, 0, prefix_fmt, hub_name, stream_key) + 1;
+    char *prefix = (char *) malloc(sizeof(char) * prefix_fmt_len);
+    sprintf(prefix, prefix_fmt, hub_name, stream_key);
+
+    char *path = "/list";
+    char *query_fmt = "bucket=%s&prefix=%s&limit=%d&marker=%s";
+    int query_len = snprintf(NULL, 0, query_fmt, hub_bucket, prefix, limit, marker) + 1;
+    char *query = (char *) malloc(sizeof(char) * query_len);
+    sprintf(query, query_fmt, hub_bucket, prefix, limit, marker);
+
+    const char *token = kodo_sign_request(access_key, secret_key, path, PILI_MIME_URLENCODED, 0,
+                                          query);
+    struct curl_slist *headers;
+
+    char *auth_fmt = "Authorization: %s";
+    int auth_len = snprintf(NULL, 0, auth_fmt, token) + 1;
+    char *auth_header = (char *) malloc(sizeof(char) * auth_len);
+    sprintf(auth_header, auth_fmt, token);
+
+    headers = curl_slist_append(NULL, auth_header);
+    headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
+
+    size_t url_len = strlen(rsf_api_address) + strlen(path) + strlen(query) + 2;
+    char *url = (char *) malloc(sizeof(char) * url_len);
+    sprintf(url, "%s%s?%s", rsf_api_address, path, query);
+
+    int resp_code;
+    struct pili_memory_buffer resp_body;
+    resp_body.memory = malloc(1);
+    resp_body.size = 0;
+
+    int result = pili_post_request(url, headers, 0, &resp_code, &resp_body, error);
+
+    if (result == 0) {
+        cJSON *resp_root = cJSON_Parse(resp_body.memory);
+        if (resp_root) {
+            if (resp_code != 200) {
+                if (error) {
+                    cJSON *err_obj = cJSON_GetObjectItem(resp_root, "error");
+                    if (err_obj) {
+                        sprintf(error, "%d %s", resp_code, err_obj->valuestring);
+                    }
+                }
+            } else {
+                cJSON *marker_obj = cJSON_GetObjectItem(resp_root, "marker");
+                if (marker_obj) {
+                    char *next_marker = marker_obj->valuestring;
+                    strcpy(marker, next_marker);
+                    marker[strlen(next_marker) + 1] = 0;
+                } else {
+                    //list ends
+                    strcpy(marker, "");
+                }
+
+                cJSON *items_obj = cJSON_GetObjectItem(resp_root, "items");
+                int items_cnt = cJSON_GetArraySize(items_obj);
+                if (items_cnt > 0) {
+                    int i;
+                    for (i = 0; i < items_cnt; i++) {
+                        cJSON *item = cJSON_GetArrayItem(items_obj, i);
+                        cJSON *fsize_obj = cJSON_GetObjectItem(item, "fsize");
+                        unsigned long fsize = (unsigned long) fsize_obj->valuedouble;
+                        total_storage += fsize;
+                    }
+                }
+            }
+            cJSON_Delete(resp_root);
+        }
+    }
+    //clean
+    curl_slist_free_all(headers);
+    free((void *) auth_header);
+    free((void *) token);
+    free((void *) prefix);
+    free((void *) query);
+    free((void *) resp_body.memory);
+    return total_storage;
+
+}
+
+unsigned long pili_get_stream_storage(const char *access_key, const char *secret_key, const char *hub_name,
+                                      const char *stream_key, const char *hub_bucket, char *error) {
+    unsigned long total_stream_storage = 0;
+    char marker[200];
+    memset(marker, 0, 200);
+    unsigned long total_storage = pili_list_hub_bucket(access_key, secret_key, hub_bucket, stream_key, hub_bucket,
+                                                       marker, error);
+    if (total_storage > 0) {
+        total_stream_storage += total_storage;
+        //check marker
+        while (strcmp(marker, "") != 0) {
+            strcpy(error, "");
+            total_storage = pili_list_hub_bucket(access_key, secret_key, hub_bucket, stream_key, hub_bucket, marker,
+                                                 error);
+            if (total_storage > 0) {
+                total_stream_storage += total_storage;
+            } else {
+                //encounter error
+                break;
+            }
+        }
+    }
+    return total_stream_storage;
+}

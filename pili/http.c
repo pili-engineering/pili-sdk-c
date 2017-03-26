@@ -42,6 +42,8 @@ int pili_post_request(const char *url, const struct curl_slist *headers, const c
         if (body) {
             curl_easy_setopt(client, CURLOPT_POSTFIELDS, body);
             curl_easy_setopt(client, CURLOPT_POSTFIELDSIZE, strlen(body));
+        } else {
+            curl_easy_setopt(client, CURLOPT_POSTFIELDSIZE, 0);
         }
 
         curl_easy_setopt(client, CURLOPT_USERAGENT, PILI_USER_AGENT);

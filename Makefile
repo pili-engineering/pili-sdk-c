@@ -13,4 +13,4 @@ SOURCE_FILES=\
 
 
 all: $(SOURCE_FILES)
-	gcc -g $^ -o pili_sdk_c $(INCLUDE_PATH) $(LINK_PATH) -lcurl -lcrypto -lssl
+	gcc -g $^ -o pili_sdk_c $(INCLUDE_PATH) $(LINK_PATH) -lcurl -lcrypto -lssl -lm
