@@ -10,12 +10,12 @@ set(OPENSSL_ROOT_DIR /usr/local/Cellar/openssl/1.0.2k)
 find_library(CURL REQUIRED)
 
 # compile & link
-include_directories(pili base64 cJSON)
+include_directories(pili b64 cJSON)
 include_directories(${OPENSSL_INCLUDE_DIR})
 include_directories(${CURL_INCLUDE_DIRS})
 
 aux_source_directory(pili SRCS1)
-aux_source_directory(base64 SRCS2)
+aux_source_directory(b64 SRCS2)
 aux_source_directory(cJSON SRCS3)
 add_library(pili STATIC ${SRCS1} ${SRCS2} ${SRCS3})
 
@@ -29,8 +29,8 @@ set(SOURCE_FILES main.c
                 pili/http.c
                 pili/stream.c
                 pili/url_factory.c
-                base64/b64.c
-                base64/urlsafe_b64.c
+                b64/b64.c
+                b64/urlsafe_b64.c
                 cJSON/cJSON.c
 )
 

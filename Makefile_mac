@@ -1,9 +1,9 @@
-INCLUDE_PATH=-Ibase64 -IcJSON -Ipili -I/usr/local/Cellar/openssl/1.0.2k/include
+INCLUDE_PATH=-Ib64 -IcJSON -Ipili -I/usr/local/Cellar/openssl/1.0.2k/include
 LINK_PATH=-L/usr/local/Cellar/openssl/1.0.2k/lib
 
 SOURCE_FILES=\
-	base64/b64.c\
-	base64/urlsafe_b64.c\
+	b64/b64.c\
+	b64/urlsafe_b64.c\
 	cJSON/cJSON.c\
 	pili/auth.c\
 	pili/http.c\

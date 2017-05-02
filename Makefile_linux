@@ -1,8 +1,8 @@
-﻿INCLUDE_PATH=-Ibase64 -IcJSON -Ipili
+﻿INCLUDE_PATH=-Ib64 -IcJSON -Ipili
 
 SOURCE_FILES=\
-	base64/b64.c\
-	base64/urlsafe_b64.c\
+	b64/b64.c\
+	b64/urlsafe_b64.c\
 	cJSON/cJSON.c\
 	pili/auth.c\
 	pili/http.c\
