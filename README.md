@@ -2,7 +2,7 @@
 
 ## 文档
 
-本SDK对应API文档地址：[七牛直播云服务端API](https://developer.qiniu.com/pili/api/the-server-api-reference)
+本SDK对应API文档地址：[七牛直播云服务端API](https://developer.qiniu.com/pili/api/2515/create-a-flow)
 
 ## 功能
 
