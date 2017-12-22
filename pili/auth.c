@@ -21,7 +21,7 @@ const char *pili_hmac_sha1(const char *access_key, const char *secret_key, const
     HMAC_cleanup(&ctx);
 #endif
 
-#if OPENSSL_VERSION_NUMBER > 0x1010007fL
+#if OPENSSL_VERSION_NUMBER > 0x101000000
     HMAC_CTX *ctx=HMAC_CTX_new();
     HMAC_Init_ex(ctx, secret_key, strlen(secret_key), EVP_sha1(), NULL);
     HMAC_Update(ctx, data, strlen(data));
