@@ -6,11 +6,12 @@
 #include "urlsafe_b64.h"
 #include <openssl/hmac.h>
 #include <string.h>
+#include <openssl/opensslv.h>
 
 const char *pili_hmac_sha1(const char *access_key, const char *secret_key, const char *data) {
     char digest[EVP_MAX_MD_SIZE + 1];
     unsigned int digest_len = sizeof(digest);
-
+#if OPENSSL_VERSION_NUMBER < 0x10100000
     HMAC_CTX ctx;
     HMAC_CTX_init(&ctx);
 
@@ -18,7 +19,16 @@ const char *pili_hmac_sha1(const char *access_key, const char *secret_key, const
     HMAC_Update(&ctx, data, strlen(data));
     HMAC_Final(&ctx, digest, &digest_len);
     HMAC_cleanup(&ctx);
+#endif
 
+#if OPENSSL_VERSION_NUMBER > 0x101000000
+    HMAC_CTX *ctx=HMAC_CTX_new();
+    HMAC_Init_ex(ctx, secret_key, strlen(secret_key), EVP_sha1(), NULL);
+    HMAC_Update(ctx, data, strlen(data));
+    HMAC_Final(ctx, digest, &digest_len);
+    HMAC_CTX_free(ctx);
+
+#endif    
     size_t dst_encoded_len = urlsafe_b64_encode(digest, digest_len, NULL, 0);
     char *dst_encoded_str = (char *) malloc(sizeof(char) * (dst_encoded_len + 1));
     memset(dst_encoded_str, 0, dst_encoded_len + 1);
